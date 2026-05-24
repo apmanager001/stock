@@ -181,7 +181,7 @@ export default function Home() {
                   A refined baseline for authenticated apps
                 </h2>
               </div>
-              <span className="badge badge-accent badge-outline rounded-full px-4 py-4 font-medium">
+              <span className="badge badge-accent badge-outline rounded-full inline-flex items-center px-4 py-2 font-medium leading-none whitespace-nowrap">
                 Ready to fork
               </span>
             </div>

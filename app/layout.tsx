@@ -82,6 +82,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="cinder"
+      data-scroll-behavior="smooth"
       className={`${bodyFont.variable} ${displayFont.variable} antialiased`}
     >
       <body className="min-h-screen bg-base-100 font-sans text-base-content">
