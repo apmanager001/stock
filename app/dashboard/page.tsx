@@ -46,7 +46,7 @@ export default async function DashboardPage() {
 
   return (
     <section className="section-shell py-8 lg:py-14">
-      <div className="glass-panel rounded-[2rem] border border-base-300/70 p-8 shadow-lg shadow-primary/5 sm:p-10">
+      <div className="glass-panel rounded-2xl border border-base-300/70 p-8 shadow-lg shadow-primary/5 sm:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
             <div className="badge badge-outline rounded-full border-secondary/30 bg-base-100/80 px-4 py-4 text-xs uppercase tracking-[0.24em] text-secondary">
@@ -74,7 +74,7 @@ export default async function DashboardPage() {
           {quickStarts.map(({ title, description, icon: Icon }) => (
             <article
               key={title}
-              className="rounded-[1.5rem] border border-base-300/70 bg-base-100/80 p-5"
+              className="rounded-xl border border-base-300/70 bg-base-100/80 p-5"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12 text-primary">
                 <Icon className="h-5 w-5" />
@@ -89,21 +89,21 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        <div className="mt-8 rounded-[1.5rem] bg-neutral p-6 text-neutral-content shadow-xl shadow-neutral/15">
+        <div className="mt-8 rounded-xl bg-neutral p-6 text-neutral-content shadow-xl shadow-neutral/15">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-neutral-content/60">
             Suggested next steps
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Link
               href="/"
-              className="flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/6 px-4 py-4 text-sm"
+              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/6 px-4 py-4 text-sm"
             >
               Review the public homepage
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/register"
-              className="flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/6 px-4 py-4 text-sm"
+              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/6 px-4 py-4 text-sm"
             >
               Test another account flow
               <ArrowRight className="h-4 w-4" />
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
               href="https://www.better-auth.com/docs/basic-usage"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/6 px-4 py-4 text-sm"
+              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/6 px-4 py-4 text-sm"
             >
               Extend Better Auth
               <ArrowRight className="h-4 w-4" />

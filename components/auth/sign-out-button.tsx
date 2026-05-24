@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { LoaderCircle, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 
-export function SignOutButton() {
+type SignOutButtonProps = {
+  className?: string;
+};
+
+export function SignOutButton({ className }: SignOutButtonProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
 
@@ -24,7 +28,9 @@ export function SignOutButton() {
   return (
     <button
       type="button"
-      className="btn btn-primary rounded-full px-6"
+      className={["btn btn-primary rounded-full px-6", className]
+        .filter(Boolean)
+        .join(" ")}
       onClick={handleSignOut}
       disabled={isPending}
     >

@@ -9,9 +9,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:up": "docker compose up -d",
-    "db:down": "docker compose down",
-    "db:logs": "docker compose logs -f mongo",
+    "db:up": "node ./scripts/docker-compose.mjs up -d",
+    "db:down": "node ./scripts/docker-compose.mjs down",
+    "db:logs": "node ./scripts/docker-compose.mjs logs -f mongo",
     "auth:secret": "npx auth@latest secret",
     "auth:info": "npx auth@latest info --config ./auth.ts"
   },

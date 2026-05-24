@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Orbit, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { authClient } from "@/lib/auth/client";
 import { siteConfig } from "@/lib/config/site";
 
 function isActive(pathname: string, href: string) {
@@ -17,11 +19,13 @@ function isActive(pathname: string, href: string) {
 export function SiteHeader() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session, isPending } = authClient.useSession();
+  const isAuthenticated = Boolean(session?.user);
 
   return (
     <header className="sticky top-0 z-40">
       <div className="section-shell pt-4">
-        <div className="rounded-[2rem] border border-base-300/60 bg-base-100/80 shadow-[0_18px_80px_-36px_color-mix(in_oklab,var(--color-neutral)_40%,transparent)] backdrop-blur">
+        <div className="rounded-2xl border border-base-300/60 bg-base-100/80 shadow-[0_18px_80px_-36px_color-mix(in_oklab,var(--color-neutral)_40%,transparent)] backdrop-blur">
           <div className="navbar gap-3 px-4 sm:px-6">
             <div className="flex-1">
               <Link href="/" className="group flex items-center gap-3">
@@ -65,18 +69,25 @@ export function SiteHeader() {
                 <Sparkles className="h-4 w-4 text-accent-content" />
                 Template ready
               </div>
-              <Link
-                href="/login"
-                className="btn btn-ghost btn-sm rounded-full px-5"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="btn btn-primary btn-sm rounded-full px-5"
-              >
-                Register
-              </Link>
+
+              {isPending ? null : isAuthenticated ? (
+                <SignOutButton className="btn-sm px-5" />
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="btn btn-ghost btn-sm rounded-full px-5"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="btn btn-primary btn-sm rounded-full px-5"
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
 
             <button
@@ -119,22 +130,26 @@ export function SiteHeader() {
               </div>
 
               <div className="mt-4 border-t border-base-300/60 pt-4">
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Link
-                    href="/login"
-                    className="btn btn-ghost rounded-full"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="btn btn-primary rounded-full"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Register
-                  </Link>
-                </div>
+                {isPending ? null : isAuthenticated ? (
+                  <SignOutButton className="w-full" />
+                ) : (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Link
+                      href="/login"
+                      className="btn btn-ghost rounded-full"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="btn btn-primary rounded-full"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           ) : null}

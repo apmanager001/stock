@@ -26,6 +26,8 @@ Open http://localhost:3000.
 
 If you already run MongoDB yourself, skip `npm run db:up` and point `MONGODB_URI` at that instance.
 
+On Windows, `npm run db:up` requires Docker Desktop and its Linux engine to be running. If Docker is installed but not started yet, the script now prints a clear message instead of the raw pipe error.
+
 ## Environment
 
 Set these values in `.env`:

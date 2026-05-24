@@ -156,7 +156,7 @@ export default function Home() {
             {heroStats.map((stat) => (
               <div
                 key={stat.label}
-                className="glass-panel rounded-[1.5rem] border border-base-300/70 p-4 shadow-lg shadow-primary/5"
+                className="glass-panel rounded-xl border border-base-300/70 p-4 shadow-lg shadow-primary/5"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/45">
                   {stat.label}
@@ -170,8 +170,8 @@ export default function Home() {
         </div>
 
         <div className="relative">
-          <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 blur-3xl" />
-          <div className="glass-panel relative overflow-hidden rounded-[2rem] border border-base-300/70 p-6 shadow-[0_30px_120px_-44px_color-mix(in_oklab,var(--color-primary)_45%,transparent)] sm:p-7">
+          <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/20 via-transparent to-secondary/20 blur-3xl" />
+          <div className="glass-panel relative overflow-hidden rounded-2xl border border-base-300/70 p-6 shadow-[0_30px_120px_-44px_color-mix(in_oklab,var(--color-primary)_45%,transparent)] sm:p-7">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/45">
@@ -187,7 +187,7 @@ export default function Home() {
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[1.5rem] bg-base-100/85 p-5 shadow-md shadow-primary/5 ring-1 ring-base-300/70">
+              <div className="rounded-xl bg-base-100/85 p-5 shadow-md shadow-primary/5 ring-1 ring-base-300/70">
                 <p className="text-sm font-semibold text-base-content">
                   Homepage shell
                 </p>
@@ -196,7 +196,7 @@ export default function Home() {
                   that holds up across future projects.
                 </p>
               </div>
-              <div className="rounded-[1.5rem] bg-base-100/85 p-5 shadow-md shadow-primary/5 ring-1 ring-base-300/70">
+              <div className="rounded-xl bg-base-100/85 p-5 shadow-md shadow-primary/5 ring-1 ring-base-300/70">
                 <p className="text-sm font-semibold text-base-content">
                   Auth surface
                 </p>
@@ -207,7 +207,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-6 rounded-[1.5rem] bg-neutral p-5 text-neutral-content shadow-xl shadow-neutral/15">
+            <div className="mt-6 rounded-xl bg-neutral p-5 text-neutral-content shadow-xl shadow-neutral/15">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-neutral-content/55">
                 Stack baked in
               </p>
@@ -244,7 +244,7 @@ export default function Home() {
       </section>
 
       <section className="section-shell mt-16 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-        <div className="glass-panel rounded-[2rem] border border-base-300/70 p-7 shadow-lg shadow-primary/5">
+        <div className="glass-panel rounded-2xl border border-base-300/70 p-7 shadow-lg shadow-primary/5">
           <div className="badge badge-outline rounded-full border-secondary/30 bg-base-100/70 px-4 py-4 text-xs uppercase tracking-[0.22em] text-secondary">
             <Workflow className="mr-2 h-4 w-4" />
             How it is organized
@@ -262,7 +262,7 @@ export default function Home() {
             {workflowPillars.map((pillar) => (
               <div
                 key={pillar.title}
-                className="rounded-[1.4rem] border border-base-300/70 bg-base-100/70 p-5"
+                className="rounded-xl border border-base-300/70 bg-base-100/70 p-5"
               >
                 <h3 className="text-lg font-semibold text-base-content">
                   {pillar.title}
@@ -275,7 +275,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="glass-panel rounded-[2rem] border border-base-300/70 p-7 shadow-lg shadow-primary/5">
+        <div className="glass-panel rounded-2xl border border-base-300/70 p-7 shadow-lg shadow-primary/5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/45">
@@ -290,7 +290,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-[1.5rem] bg-neutral p-5 text-sm text-neutral-content shadow-xl shadow-neutral/15">
+          <div className="mt-6 rounded-xl bg-neutral p-5 text-sm text-neutral-content shadow-xl shadow-neutral/15">
             <div className="space-y-2 font-mono">
               {folderTree.map((line) => (
                 <p key={line}>{line}</p>

@@ -26,7 +26,7 @@ export function AuthShell({
   return (
     <section className="section-shell grid gap-8 py-8 lg:grid-cols-[0.95fr_1.05fr] lg:py-14">
       <div className="order-2 lg:order-1">
-        <div className="glass-panel rounded-[2rem] border border-base-300/70 p-8 shadow-lg shadow-primary/5 lg:sticky lg:top-28">
+        <div className="glass-panel rounded-2xl border border-base-300/70 p-8 shadow-lg shadow-primary/5 lg:sticky lg:top-28">
           <div className="badge badge-outline rounded-full border-secondary/30 bg-base-100/75 px-4 py-4 text-xs uppercase tracking-[0.24em] text-secondary">
             <Sparkles className="mr-2 h-4 w-4" />
             {badge}
@@ -43,7 +43,7 @@ export function AuthShell({
             {highlights.map((highlight) => (
               <div
                 key={highlight}
-                className="flex items-start gap-3 rounded-[1.25rem] border border-base-300/70 bg-base-100/70 p-4"
+                className="flex items-start gap-3 rounded-lg border border-base-300/70 bg-base-100/70 p-4"
               >
                 <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-success/12 text-success">
                   <CheckCircle2 className="h-4 w-4" />
@@ -67,7 +67,7 @@ export function AuthShell({
       </div>
 
       <div className="order-1 lg:order-2">
-        <div className="glass-panel rounded-[2rem] border border-base-300/70 shadow-[0_24px_100px_-40px_color-mix(in_oklab,var(--color-primary)_40%,transparent)]">
+        <div className="glass-panel rounded-2xl border border-base-300/70 shadow-[0_24px_100px_-40px_color-mix(in_oklab,var(--color-primary)_40%,transparent)]">
           <div className="p-8 sm:p-10">
             {children}
 
