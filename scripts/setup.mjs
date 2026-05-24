@@ -23,12 +23,10 @@ if (!envContent.includes("BETTER_AUTH_SECRET=")) {
   envContent = `${envContent.trim()}\nBETTER_AUTH_SECRET=${generatedSecret}\n`;
 }
 
-envContent = envContent.replace(
-  /^BETTER_AUTH_SECRET=.*$/m,
-  (line) =>
-    line.endsWith(placeholderSecret) || line === "BETTER_AUTH_SECRET="
-      ? `BETTER_AUTH_SECRET=${generatedSecret}`
-      : line,
+envContent = envContent.replace(/^BETTER_AUTH_SECRET=.*$/m, (line) =>
+  line.endsWith(placeholderSecret) || line === "BETTER_AUTH_SECRET="
+    ? `BETTER_AUTH_SECRET=${generatedSecret}`
+    : line,
 );
 
 writeFileSync(envPath, `${envContent.trim()}\n`, "utf8");
@@ -37,4 +35,6 @@ console.log("Created or updated .env for local development.");
 console.log("Next steps:");
 console.log("  1. npm run db:up");
 console.log("  2. npm run dev");
-console.log("  3. Replace NEXT_PUBLIC_GA_ID and GOOGLE_SITE_VERIFICATION when ready");
+console.log(
+  "  3. Replace NEXT_PUBLIC_GA_ID and GOOGLE_SITE_VERIFICATION when ready",
+);

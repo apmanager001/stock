@@ -13,9 +13,7 @@ async function runAuthHandler(
     return await handlers[method](request);
   } catch (error) {
     const message =
-      error instanceof Error
-        ? error.message
-        : "Authentication request failed.";
+      error instanceof Error ? error.message : "Authentication request failed.";
 
     return Response.json({ error: message }, { status: 503 });
   }

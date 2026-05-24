@@ -29,10 +29,12 @@ export function getMongoClient() {
 
 export function connectMongoClient() {
   if (!globalMongo.__mongoClientPromise) {
-    globalMongo.__mongoClientPromise = getMongoClient().connect().catch((error) => {
-      globalMongo.__mongoClientPromise = undefined;
-      throw error;
-    });
+    globalMongo.__mongoClientPromise = getMongoClient()
+      .connect()
+      .catch((error) => {
+        globalMongo.__mongoClientPromise = undefined;
+        throw error;
+      });
   }
 
   return globalMongo.__mongoClientPromise;

@@ -62,7 +62,9 @@ export function RegisterForm() {
       });
 
       if (result.error) {
-        setStatusMessage(result.error.message ?? "Unable to create your account.");
+        setStatusMessage(
+          result.error.message ?? "Unable to create your account.",
+        );
         return;
       }
 
@@ -85,7 +87,9 @@ export function RegisterForm() {
     <form className="space-y-5" onSubmit={handleSubmit}>
       <div>
         <label className="label px-1" htmlFor="name">
-          <span className="label-text font-medium text-base-content">Full name</span>
+          <span className="label-text font-medium text-base-content">
+            Full name
+          </span>
         </label>
         <input
           id="name"
@@ -98,12 +102,16 @@ export function RegisterForm() {
             errors.name ? "input-error" : "",
           ].join(" ")}
         />
-        {errors.name ? <p className="mt-2 text-sm text-error">{errors.name}</p> : null}
+        {errors.name ? (
+          <p className="mt-2 text-sm text-error">{errors.name}</p>
+        ) : null}
       </div>
 
       <div>
         <label className="label px-1" htmlFor="register-email">
-          <span className="label-text font-medium text-base-content">Email</span>
+          <span className="label-text font-medium text-base-content">
+            Email
+          </span>
         </label>
         <input
           id="register-email"
@@ -116,13 +124,17 @@ export function RegisterForm() {
             errors.email ? "input-error" : "",
           ].join(" ")}
         />
-        {errors.email ? <p className="mt-2 text-sm text-error">{errors.email}</p> : null}
+        {errors.email ? (
+          <p className="mt-2 text-sm text-error">{errors.email}</p>
+        ) : null}
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label className="label px-1" htmlFor="register-password">
-            <span className="label-text font-medium text-base-content">Password</span>
+            <span className="label-text font-medium text-base-content">
+              Password
+            </span>
           </label>
           <div className="relative">
             <input
@@ -142,7 +154,11 @@ export function RegisterForm() {
               onClick={() => setShowPassword((visible) => !visible)}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
             </button>
           </div>
           {errors.password ? (
@@ -152,7 +168,9 @@ export function RegisterForm() {
 
         <div>
           <label className="label px-1" htmlFor="confirmPassword">
-            <span className="label-text font-medium text-base-content">Confirm password</span>
+            <span className="label-text font-medium text-base-content">
+              Confirm password
+            </span>
           </label>
           <input
             id="confirmPassword"
@@ -172,11 +190,14 @@ export function RegisterForm() {
       </div>
 
       <div className="rounded-[1.4rem] border border-base-300/70 bg-base-100/75 p-4 text-sm leading-6 text-base-content/62">
-        Passwords should be at least 8 characters and include an uppercase letter, a number, and a special character.
+        Passwords should be at least 8 characters and include an uppercase
+        letter, a number, and a special character.
       </div>
 
       {statusMessage ? (
-        <div className="alert alert-error rounded-2xl text-sm">{statusMessage}</div>
+        <div className="alert alert-error rounded-2xl text-sm">
+          {statusMessage}
+        </div>
       ) : null}
 
       <button
@@ -184,7 +205,9 @@ export function RegisterForm() {
         className="btn btn-primary h-13 w-full rounded-full text-base"
         disabled={isSubmitting}
       >
-        {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+        {isSubmitting ? (
+          <LoaderCircle className="h-4 w-4 animate-spin" />
+        ) : null}
         {isSubmitting ? "Creating account" : "Create account"}
       </button>
     </form>

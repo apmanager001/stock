@@ -25,7 +25,11 @@ export function SiteFooter() {
               </p>
               <div className="mt-4 flex flex-col gap-3 text-sm text-base-content/72">
                 {siteConfig.footerLinks.map((link) => (
-                  <Link key={link.href} href={link.href} className="hover:text-primary">
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="hover:text-primary"
+                  >
                     {link.label}
                   </Link>
                 ))}
@@ -51,8 +55,12 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-base-300/60 pt-6 text-sm text-base-content/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>{year} {siteConfig.name}. Built to be forked and extended.</p>
-          <p>Homepage, auth routes, Mongo utilities, and query hooks included.</p>
+          <p>
+            {year} {siteConfig.name}. Built to be forked and extended.
+          </p>
+          <p>
+            Homepage, auth routes, Mongo utilities, and query hooks included.
+          </p>
         </div>
       </div>
     </footer>

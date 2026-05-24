@@ -64,9 +64,21 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, color-mix(in oklab, var(--color-primary) 14%, transparent) 0, transparent 34%),
-    radial-gradient(circle at top right, color-mix(in oklab, var(--color-secondary) 12%, transparent) 0, transparent 30%),
-    linear-gradient(180deg, color-mix(in oklab, var(--color-base-100) 96%, white) 0%, var(--color-base-100) 100%);
+    radial-gradient(
+      circle at top left,
+      color-mix(in oklab, var(--color-primary) 14%, transparent) 0,
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at top right,
+      color-mix(in oklab, var(--color-secondary) 12%, transparent) 0,
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-base-100) 96%, white) 0%,
+      var(--color-base-100) 100%
+    );
 }
 
 a {
@@ -84,10 +96,22 @@ a {
   inset: 0;
   z-index: -20;
   background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--color-neutral) 9%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--color-neutral) 9%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-neutral) 9%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-neutral) 9%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 72px 72px;
-  mask-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.72), transparent 85%);
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.72),
+    transparent 85%
+  );
   opacity: 0.42;
 }
 

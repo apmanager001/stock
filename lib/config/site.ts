@@ -4,7 +4,8 @@ export const siteConfig = {
   creator: "Your Team",
   locale: "en_US",
   category: "technology",
-  tagline: "Cloneable Next.js template with auth, analytics, and strong SEO already wired.",
+  tagline:
+    "Cloneable Next.js template with auth, analytics, and strong SEO already wired.",
   description:
     "A design-forward Next.js starter with DaisyUI, Better Auth, TanStack Query, MongoDB, Mongoose, Google Analytics, and strong SEO already organized.",
   keywords: [

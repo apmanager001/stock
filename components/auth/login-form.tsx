@@ -80,7 +80,9 @@ export function LoginForm() {
     <form className="space-y-5" onSubmit={handleSubmit}>
       <div>
         <label className="label px-1" htmlFor="email">
-          <span className="label-text font-medium text-base-content">Email</span>
+          <span className="label-text font-medium text-base-content">
+            Email
+          </span>
         </label>
         <input
           id="email"
@@ -93,12 +95,16 @@ export function LoginForm() {
             errors.email ? "input-error" : "",
           ].join(" ")}
         />
-        {errors.email ? <p className="mt-2 text-sm text-error">{errors.email}</p> : null}
+        {errors.email ? (
+          <p className="mt-2 text-sm text-error">{errors.email}</p>
+        ) : null}
       </div>
 
       <div>
         <label className="label px-1" htmlFor="password">
-          <span className="label-text font-medium text-base-content">Password</span>
+          <span className="label-text font-medium text-base-content">
+            Password
+          </span>
         </label>
         <div className="relative">
           <input
@@ -118,7 +124,11 @@ export function LoginForm() {
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
           </button>
         </div>
         {errors.password ? (
@@ -127,12 +137,21 @@ export function LoginForm() {
       </div>
 
       <label className="label cursor-pointer justify-start gap-3 px-1">
-        <input name="rememberMe" type="checkbox" defaultChecked className="checkbox checkbox-sm checkbox-primary" />
-        <span className="label-text text-base-content/70">Keep me signed in on this device</span>
+        <input
+          name="rememberMe"
+          type="checkbox"
+          defaultChecked
+          className="checkbox checkbox-sm checkbox-primary"
+        />
+        <span className="label-text text-base-content/70">
+          Keep me signed in on this device
+        </span>
       </label>
 
       {statusMessage ? (
-        <div className="alert alert-error rounded-2xl text-sm">{statusMessage}</div>
+        <div className="alert alert-error rounded-2xl text-sm">
+          {statusMessage}
+        </div>
       ) : null}
 
       <button
@@ -140,12 +159,15 @@ export function LoginForm() {
         className="btn btn-primary h-13 w-full rounded-full text-base"
         disabled={isSubmitting}
       >
-        {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+        {isSubmitting ? (
+          <LoaderCircle className="h-4 w-4 animate-spin" />
+        ) : null}
         {isSubmitting ? "Signing in" : "Sign in"}
       </button>
 
       <p className="text-sm leading-6 text-base-content/58">
-        If Better Auth or MongoDB are not configured yet, the form will return a clear setup error until the env values are added.
+        If Better Auth or MongoDB are not configured yet, the form will return a
+        clear setup error until the env values are added.
       </p>
     </form>
   );

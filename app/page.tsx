@@ -188,14 +188,18 @@ export default function Home() {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-[1.5rem] bg-base-100/85 p-5 shadow-md shadow-primary/5 ring-1 ring-base-300/70">
-                <p className="text-sm font-semibold text-base-content">Homepage shell</p>
+                <p className="text-sm font-semibold text-base-content">
+                  Homepage shell
+                </p>
                 <p className="mt-2 text-sm leading-6 text-base-content/68">
                   Designed hero, feature grid, sticky navigation, and a footer
                   that holds up across future projects.
                 </p>
               </div>
               <div className="rounded-[1.5rem] bg-base-100/85 p-5 shadow-md shadow-primary/5 ring-1 ring-base-300/70">
-                <p className="text-sm font-semibold text-base-content">Auth surface</p>
+                <p className="text-sm font-semibold text-base-content">
+                  Auth surface
+                </p>
                 <p className="mt-2 text-sm leading-6 text-base-content/68">
                   Login and registration views are ready to point at Better Auth
                   with a MongoDB-backed route handler.
@@ -295,10 +299,16 @@ export default function Home() {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/register" className="btn btn-secondary rounded-full px-6">
+            <Link
+              href="/register"
+              className="btn btn-secondary rounded-full px-6"
+            >
               Start with register
             </Link>
-            <Link href="/dashboard" className="btn btn-accent rounded-full px-6">
+            <Link
+              href="/dashboard"
+              className="btn btn-accent rounded-full px-6"
+            >
               Open dashboard
             </Link>
             <Link href="/login" className="btn btn-outline rounded-full px-6">

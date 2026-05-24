@@ -28,7 +28,11 @@ export function SignOutButton() {
       onClick={handleSignOut}
       disabled={isPending}
     >
-      {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+      {isPending ? (
+        <LoaderCircle className="h-4 w-4 animate-spin" />
+      ) : (
+        <LogOut className="h-4 w-4" />
+      )}
       {isPending ? "Signing out" : "Sign out"}
     </button>
   );

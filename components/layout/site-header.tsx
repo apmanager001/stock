@@ -65,10 +65,16 @@ export function SiteHeader() {
                 <Sparkles className="h-4 w-4 text-accent-content" />
                 Template ready
               </div>
-              <Link href="/login" className="btn btn-ghost btn-sm rounded-full px-5">
+              <Link
+                href="/login"
+                className="btn btn-ghost btn-sm rounded-full px-5"
+              >
                 Login
               </Link>
-              <Link href="/register" className="btn btn-primary btn-sm rounded-full px-5">
+              <Link
+                href="/register"
+                className="btn btn-primary btn-sm rounded-full px-5"
+              >
                 Register
               </Link>
             </div>
@@ -80,7 +86,11 @@ export function SiteHeader() {
               aria-label="Toggle menu"
               aria-expanded={isMenuOpen}
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
 

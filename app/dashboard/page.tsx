@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { ArrowRight, Database, Gauge, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Database,
+  Gauge,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { requireServerSession } from "@/lib/backend/auth/session";
@@ -51,8 +57,8 @@ export default async function DashboardPage() {
               Welcome to the starter dashboard, {userLabel}.
             </h1>
             <p className="mt-4 max-w-2xl leading-7 text-base-content/70">
-              This page proves the auth flow is live: registration, login, cookies,
-              and server-side session reads are all connected.
+              This page proves the auth flow is live: registration, login,
+              cookies, and server-side session reads are all connected.
             </p>
           </div>
 
@@ -73,8 +79,12 @@ export default async function DashboardPage() {
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12 text-primary">
                 <Icon className="h-5 w-5" />
               </div>
-              <h2 className="mt-4 text-xl font-semibold text-base-content">{title}</h2>
-              <p className="mt-2 leading-7 text-base-content/68">{description}</p>
+              <h2 className="mt-4 text-xl font-semibold text-base-content">
+                {title}
+              </h2>
+              <p className="mt-2 leading-7 text-base-content/68">
+                {description}
+              </p>
             </article>
           ))}
         </div>
@@ -84,11 +94,17 @@ export default async function DashboardPage() {
             Suggested next steps
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <Link href="/" className="flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/6 px-4 py-4 text-sm">
+            <Link
+              href="/"
+              className="flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/6 px-4 py-4 text-sm"
+            >
               Review the public homepage
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/register" className="flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/6 px-4 py-4 text-sm">
+            <Link
+              href="/register"
+              className="flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/6 px-4 py-4 text-sm"
+            >
               Test another account flow
               <ArrowRight className="h-4 w-4" />
             </Link>

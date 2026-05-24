@@ -73,7 +73,10 @@ export function AuthShell({
 
             <p className="mt-8 flex flex-wrap items-center gap-2 text-sm text-base-content/68">
               <span>{alternateText}</span>
-              <Link href={alternateHref} className="inline-flex items-center gap-2 font-semibold text-primary">
+              <Link
+                href={alternateHref}
+                className="inline-flex items-center gap-2 font-semibold text-primary"
+              >
                 {alternateLabel}
                 <ArrowRight className="h-4 w-4" />
               </Link>
