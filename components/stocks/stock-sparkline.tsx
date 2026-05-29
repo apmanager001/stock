@@ -1,4 +1,4 @@
-import type { StockChartPoint } from "@/lib/backend/stocks/yahoo";
+import type { StockChartPoint } from "@/lib/stocks/models";
 
 type StockSparklineProps = {
   symbol: string;

@@ -1,7 +1,11 @@
 import Link from "next/link";
-import { ExternalLink, Newspaper, TrendingUp } from "lucide-react";
+import { Newspaper, TrendingUp } from "lucide-react";
 import { PriceChart } from "@/components/stocks/price-chart";
-import { stockChartRanges, type StockDetail } from "@/lib/backend/stocks/yahoo";
+import {
+  stockChartRanges,
+  type StockChartRange,
+  type StockDetail,
+} from "@/lib/stocks/models";
 import {
   formatCompactNumber,
   formatCurrency,
@@ -12,8 +16,10 @@ import {
 
 type StockDetailPanelProps = {
   stock: StockDetail;
-  rangeHrefBase: string;
+  rangeHrefBase?: string;
   headerAction?: React.ReactNode;
+  onRangeChange?: (range: StockChartRange) => void;
+  isLoading?: boolean;
 };
 
 type Metric = {
@@ -29,6 +35,8 @@ export function StockDetailPanel({
   stock,
   rangeHrefBase,
   headerAction,
+  onRangeChange,
+  isLoading = false,
 }: StockDetailPanelProps) {
   const metrics: Metric[] = [
     {
@@ -74,26 +82,26 @@ export function StockDetailPanel({
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="glass-panel rounded-4xl border border-base-300/70 p-8 shadow-lg shadow-primary/5 sm:p-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>{headerAction}</div>
+    <div className="min-w-0 space-y-8">
+      <div className="glass-panel min-w-0 rounded-4xl border border-base-300/70 p-8 shadow-lg shadow-primary/5 sm:p-10">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">{headerAction}</div>
           <div className="badge badge-outline rounded-full border-secondary/30 bg-base-100/80 px-4 py-4 text-xs uppercase tracking-[0.24em] text-secondary">
             {stock.marketState ?? "Market data"}
           </div>
         </div>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
               {stock.symbol}
             </p>
-            <h1 className="mt-3 text-balance font-display text-4xl font-semibold tracking-tight text-base-content sm:text-5xl lg:text-6xl">
+            <h1 className="mt-3 text-balance font-display text-3xl font-semibold tracking-tight text-base-content sm:text-5xl lg:text-6xl">
               {stock.name}
             </h1>
             <p className="mt-3 text-base-content/62">{stock.exchange}</p>
 
-            <div className="mt-8 flex flex-wrap items-end gap-x-6 gap-y-3">
+            <div className="mt-8 flex flex-wrap items-end gap-x-6 gap-y-3 lg:hidden">
               <div>
                 <p className="text-4xl font-semibold tracking-tight text-base-content sm:text-5xl">
                   {formatCurrency(stock.price, stock.currency ?? "USD")}
@@ -116,17 +124,40 @@ export function StockDetailPanel({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl border border-base-300/70 bg-base-100/80 p-5">
+          <div className="grid gap-4 sm:grid-cols-2 lg:max-w-md lg:grid-cols-1 lg:justify-self-end">
+            <div className="hidden rounded-3xl border border-base-300/70 bg-base-100/80 p-5 lg:block">
               <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
-                Dividend yield
+                Current price
               </p>
-              <p className="mt-3 text-2xl font-semibold text-base-content">
-                {typeof stock.dividendYield === "number"
-                  ? `${(stock.dividendYield * 100).toFixed(2)}%`
-                  : "--"}
+              <p className="mt-3 text-3xl font-semibold tracking-tight text-base-content sm:text-4xl">
+                {formatCurrency(stock.price, stock.currency ?? "USD")}
+              </p>
+              <p
+                className={`mt-3 text-sm font-medium ${
+                  (stock.changePercent ?? 0) >= 0
+                    ? "text-success"
+                    : "text-error"
+                }`}
+              >
+                {formatSignedCurrency(stock.change, stock.currency ?? "USD")} ·{" "}
+                {formatPercent(stock.changePercent)}
+              </p>
+              <p className="mt-4 text-sm text-base-content/62">
+                Updated {formatDateTime(stock.updatedAt)}
               </p>
             </div>
+            {stock.dividendYield && (
+                <div className="rounded-3xl border border-base-300/70 bg-base-100/80 p-5">
+                <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
+                    Dividend yield
+                </p>
+                <p className="mt-3 text-2xl font-semibold text-base-content">
+                    {typeof stock.dividendYield === "number"
+                    ? `${stock.dividendYield.toFixed(2)}%`
+                    : "--"}
+                </p>
+                </div>
+            )}
             <div className="rounded-3xl border border-base-300/70 bg-base-100/80 p-5">
               <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
                 52 week high
@@ -142,10 +173,10 @@ export function StockDetailPanel({
         </div>
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="space-y-6">
         <div className="space-y-6">
-          <div className="glass-panel rounded-4xl border border-base-300/70 p-6 shadow-lg shadow-primary/5 sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="glass-panel min-w-0 rounded-4xl border border-base-300/70 p-6 shadow-lg shadow-primary/5 sm:p-8">
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
                   Price chart
@@ -156,20 +187,43 @@ export function StockDetailPanel({
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {Object.entries(stockChartRanges).map(([key, config]) => (
-                  <Link
-                    key={key}
-                    href={buildRangeHref(rangeHrefBase, key)}
-                    className={[
-                      "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                      key === stock.chartRange
-                        ? "bg-primary text-primary-content"
-                        : "border border-base-300/70 bg-base-100/80 text-base-content/68 hover:border-primary/35 hover:text-base-content",
-                    ].join(" ")}
-                  >
-                    {config.label}
-                  </Link>
-                ))}
+                {Object.entries(stockChartRanges).map(([key, config]) => {
+                  const range = key as StockChartRange;
+                  const className = [
+                    "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                    key === stock.chartRange
+                      ? "bg-primary text-primary-content"
+                      : "border border-base-300/70 bg-base-100/80 text-base-content/68 hover:border-primary/35 hover:text-base-content",
+                  ].join(" ");
+
+                  if (onRangeChange) {
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => onRangeChange(range)}
+                        className={className}
+                        disabled={isLoading && key !== stock.chartRange}
+                      >
+                        {config.label}
+                      </button>
+                    );
+                  }
+
+                  if (!rangeHrefBase) {
+                    return null;
+                  }
+
+                  return (
+                    <Link
+                      key={key}
+                      href={buildRangeHref(rangeHrefBase, key)}
+                      className={className}
+                    >
+                      {config.label}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
@@ -224,31 +278,59 @@ export function StockDetailPanel({
               </div>
             ) : (
               <div className="mt-6 space-y-4">
-                {stock.news.map((article) => (
-                  <article
-                    key={article.id}
-                    className="rounded-3xl border border-base-300/70 bg-base-100/80 p-5"
-                  >
-                    <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
-                      {article.publisher}
-                    </p>
-                    <h3 className="mt-3 text-lg font-semibold text-base-content">
-                      {article.title}
-                    </h3>
-                    <p className="mt-3 text-sm text-base-content/56">
-                      Published {formatDateTime(article.publishedAt)}
-                    </p>
-                    <a
-                      href={article.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary"
+                {stock.news.slice(0, 6).map((article) => {
+                  const primaryTicker = article.relatedTickers[0];
+                  const cardStyle = article.thumbnailUrl
+                    ? {
+                        backgroundImage: [
+                          "linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0.72) 100%)",
+                          `url(${article.thumbnailUrl})`,
+                        ].join(", "),
+                      }
+                    : {
+                        backgroundImage:
+                          "linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 24%, transparent) 0%, color-mix(in oklab, var(--color-secondary) 24%, transparent) 100%)",
+                      };
+
+                  return (
+                    <article
+                      key={article.id}
+                      className="group relative overflow-hidden rounded-4xl border border-base-300/70 bg-neutral text-neutral-content shadow-lg shadow-primary/5"
+                      style={cardStyle}
                     >
-                      Open article
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </article>
-                ))}
+                      <a
+                        href={article.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="absolute inset-0 z-10"
+                        aria-label={`Open article: ${article.title}`}
+                      />
+
+                      <div className="pointer-events-none relative z-20 flex min-h-24 flex-col justify-between bg-linear-to-t from-neutral/92 via-neutral/38 to-neutral/8 p-4 gap-4 sm:p-5">
+                        <div className="flex items-start justify-between gap-3 text-xs uppercase tracking-[0.22em] text-neutral-content/72">
+                          <span className="rounded-full bg-neutral/45 px-3 py-1.5 backdrop-blur-sm">
+                            {article.publisher}
+                          </span>
+                          {primaryTicker ? (
+                            <span className="rounded-full bg-neutral/45 px-3 py-1.5 backdrop-blur-sm">
+                              {primaryTicker}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <div className="max-w-xl rounded-3xl bg-neutral/68 p-3.5 backdrop-blur-sm sm:p-4">
+                          <h3 className="text-base font-semibold leading-6 text-neutral-content sm:text-lg sm:leading-7">
+                            {article.title}
+                          </h3>
+
+                          <p className="mt-2 text-xs text-neutral-content/72 sm:text-sm">
+                            Published {formatDateTime(article.publishedAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             )}
           </div>

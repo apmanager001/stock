@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
-import { StockDetailPanel } from "@/components/stocks/stock-detail-panel";
+import { StockDetailShell } from "@/components/stocks/stock-detail-shell";
 import {
   getStockDetail,
   StockNotFoundError,
@@ -74,10 +74,9 @@ export default async function StockDetailPage({
   }
 
   return (
-    <section className="section-shell py-8 lg:py-14" id='chart'>
-      <StockDetailPanel
-        stock={stock}
-        rangeHrefBase={`/stocks/${stock.symbol}`}
+    <section className="section-shell py-8 lg:py-14" id="chart">
+      <StockDetailShell
+        initialStock={stock}
         headerAction={
           <Link href="/dashboard" className="btn btn-ghost rounded-full px-5">
             <ArrowLeft className="h-4 w-4" />

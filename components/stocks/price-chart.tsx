@@ -2,7 +2,7 @@
 
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useState } from "react";
-import type { StockChartPoint } from "@/lib/backend/stocks/yahoo";
+import type { StockChartPoint } from "@/lib/stocks/models";
 import { formatCurrency } from "@/lib/stocks/format";
 
 type PriceChartProps = {
