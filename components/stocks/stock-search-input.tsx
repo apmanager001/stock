@@ -7,6 +7,7 @@ import type { StockSearchResult } from "@/lib/stocks/models";
 type StockSearchInputProps = {
   name: string;
   placeholder?: string;
+  inputId?: string;
 };
 
 type SearchResponse = {
@@ -16,6 +17,7 @@ type SearchResponse = {
 export function StockSearchInput({
   name,
   placeholder = "Search by ticker or company name",
+  inputId = "search",
 }: StockSearchInputProps) {
   const [query, setQuery] = useState("");
   const [selectedResult, setSelectedResult] =
@@ -98,7 +100,7 @@ export function StockSearchInput({
         <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-base-content/42" />
         <input
           type="text"
-          id="search"
+          id={inputId}
           value={query}
           onChange={(event) => {
             const nextQuery = event.target.value;
