@@ -65,7 +65,28 @@ export default async function Home() {
   return (
     <div className="pb-24 pt-6 sm:pt-8 lg:pt-12">
       <JsonLd data={homeJsonLd} />
+      <section
+        id="movers"
+        className="section-shell mb-4 grid gap-8 lg:grid-cols-2"
+      >
+        <MoverList
+          eyebrow="Market board"
+          title="Top gainers"
+          icon={<TrendingUp className="h-5 w-5" />}
+          iconClassName="bg-success/12 text-success"
+          stocks={gainers}
+          emptyMessage="Yahoo Finance did not return gainers right now."
+        />
 
+        <MoverList
+          eyebrow="Market board"
+          title="Top losers"
+          icon={<TrendingDown className="h-5 w-5" />}
+          iconClassName="bg-error/12 text-error"
+          stocks={losers}
+          emptyMessage="Yahoo Finance did not return losers right now."
+        />
+      </section>
       <section className="section-shell grid gap-10 lg:grid-cols-[1.06fr_0.94fr] lg:items-center">
         <div className="space-y-8">
           <div className="badge badge-outline badge-lg gap-2 rounded-full border-primary/30 bg-base-100/80 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
@@ -215,29 +236,6 @@ export default async function Home() {
           </p>
         </article>
       </section> */}
-
-      <section
-        id="movers"
-        className="section-shell mt-16 grid gap-8 lg:grid-cols-2"
-      >
-        <MoverList
-          eyebrow="Market board"
-          title="Top gainers"
-          icon={<TrendingUp className="h-5 w-5" />}
-          iconClassName="bg-success/12 text-success"
-          stocks={gainers}
-          emptyMessage="Yahoo Finance did not return gainers right now."
-        />
-
-        <MoverList
-          eyebrow="Market board"
-          title="Top losers"
-          icon={<TrendingDown className="h-5 w-5" />}
-          iconClassName="bg-error/12 text-error"
-          stocks={losers}
-          emptyMessage="Yahoo Finance did not return losers right now."
-        />
-      </section>
 
       <section id="news" className="section-shell mt-16">
         <div className="flex flex-wrap items-end justify-between gap-4">

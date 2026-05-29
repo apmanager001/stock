@@ -231,26 +231,26 @@ export function DashboardShell({
     return (
       <div className="glass-panel min-w-0 rounded-4xl border border-base-300/70 p-6 shadow-lg shadow-primary/5 sm:p-8">
         <div className="space-y-6">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between xl:flex-col">
+          {/* <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between xl:flex-col">
             <div className="min-w-0">
               <div className="badge badge-outline rounded-full border-secondary/30 bg-base-100/80 px-4 py-4 text-xs uppercase tracking-[0.24em] text-secondary">
                 <ShieldCheck className="mr-2 h-4 w-4" />
                 Wishlist
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="border-t border-base-300/60 pt-6">
+          <div className="border-base-300/60 ">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12 text-primary">
                 <CirclePlus className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
-                  Saved wishlist
+                  Save to Wishlist
                 </p>
                 <h2 className="mt-1 font-display text-3xl font-semibold text-base-content">
-                  Search and save
+                  Your Wishlist
                 </h2>
               </div>
             </div>
@@ -275,12 +275,11 @@ export function DashboardShell({
               </div>
             ) : null}
             <p className="mt-3 text-sm text-base-content/56">
-              Start typing a ticker or company name, choose a suggestion, then
-              save it to your wishlist.
+              Search and add stock to your wishlist.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          {/* <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
                 Stocks you are following
@@ -289,7 +288,7 @@ export function DashboardShell({
                 Click any row to open that stock in the detail panel.
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {watchlistCards.length === 0 ? (
