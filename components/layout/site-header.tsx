@@ -37,7 +37,7 @@ export function SiteHeader() {
                     {siteConfig.name}
                   </p>
                   <p className="text-xs uppercase tracking-[0.24em] text-base-content/45">
-                    Next + Auth + Data
+                    Stocks + Auth + Data
                   </p>
                 </div>
               </Link>
@@ -67,7 +67,7 @@ export function SiteHeader() {
             <div className="hidden items-center gap-3 md:flex">
               <div className="hidden items-center gap-2 rounded-full border border-base-300/60 bg-base-100/80 px-3 py-2 text-xs uppercase tracking-[0.2em] text-base-content/50 xl:flex">
                 <Sparkles className="h-4 w-4 text-accent-content" />
-                Template ready
+                Live market view
               </div>
 
               {isPending ? null : isAuthenticated ? (

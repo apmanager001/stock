@@ -7,12 +7,58 @@ type GlobalMongoCache = typeof globalThis & {
 
 const globalMongo = globalThis as GlobalMongoCache;
 
+function readMongoUriFromEnv() {
+  return process.env.MONGODB_URI ?? process.env.mongodb_uri ?? null;
+}
+
+function readMongoDatabaseNameFromEnv() {
+  return process.env.MONGODB_DB_NAME ?? process.env.mongodb_db_name ?? null;
+}
+
+function readMongoDatabaseNameFromUri() {
+  try {
+    const pathname = new URL(getMongoUri()).pathname.replace(/^\/+/, "");
+
+    if (!pathname) {
+      return null;
+    }
+
+    return decodeURIComponent(pathname.split("/")[0] ?? "") || null;
+  } catch {
+    throw new Error(
+      "MongoDB connection string is invalid. Check MONGODB_URI or mongodb_uri.",
+    );
+  }
+}
+
 export function getMongoUri() {
-  return process.env.MONGODB_URI ?? "mongodb://127.0.0.1:27017";
+  const mongoUri = readMongoUriFromEnv();
+
+  if (!mongoUri) {
+    throw new Error(
+      "MongoDB is not configured. Set MONGODB_URI or mongodb_uri before using auth or database features.",
+    );
+  }
+
+  return mongoUri;
 }
 
 export function getMongoDatabaseName() {
-  return process.env.MONGODB_DB_NAME ?? "foundry_stack";
+  const envDatabaseName = readMongoDatabaseNameFromEnv();
+
+  if (envDatabaseName) {
+    return envDatabaseName;
+  }
+
+  const databaseNameFromUri = readMongoDatabaseNameFromUri();
+
+  if (databaseNameFromUri) {
+    return databaseNameFromUri;
+  }
+
+  throw new Error(
+    "MongoDB database name is not configured. Set MONGODB_DB_NAME or mongodb_db_name, or include a database name in MONGODB_URI.",
+  );
 }
 
 function createMongoClient() {

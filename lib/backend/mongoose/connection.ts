@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
-import { getMongoDatabaseName } from "@/lib/backend/mongodb/client";
+import {
+  getMongoDatabaseName,
+  getMongoUri,
+} from "@/lib/backend/mongodb/client";
 
 type MongooseCache = {
   conn: typeof mongoose | null;
@@ -20,13 +23,7 @@ const mongooseCache = globalMongoose.__mongooseCache ?? {
 globalMongoose.__mongooseCache = mongooseCache;
 
 export async function connectMongoose() {
-  const mongoUri = process.env.MONGODB_URI;
-
-  if (!mongoUri) {
-    throw new Error(
-      "MONGODB_URI is missing. Copy .env.example to .env before using Mongoose.",
-    );
-  }
+  const mongoUri = getMongoUri();
 
   if (mongooseCache.conn) {
     return mongooseCache.conn;

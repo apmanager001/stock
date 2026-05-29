@@ -26,6 +26,8 @@ Open http://localhost:3000.
 
 If you already run MongoDB yourself, skip `npm run db:up` and point `MONGODB_URI` at that instance.
 
+The app no longer falls back to a local MongoDB connection if the URI is missing. That is intentional so auth and wishlist data cannot silently end up in the wrong database.
+
 On Windows, `npm run db:up` requires Docker Desktop and its Linux engine to be running. If Docker is installed but not started yet, the script now prints a clear message instead of the raw pipe error.
 
 ## Environment
@@ -41,6 +43,8 @@ BETTER_AUTH_URL=http://localhost:3000
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 GOOGLE_SITE_VERIFICATION=
 ```
+
+If your MongoDB URI already includes a database name, `MONGODB_DB_NAME` is optional. Otherwise set it explicitly.
 
 `npm run setup` copies `.env.example` to `.env` and generates a strong local Better Auth secret automatically.
 

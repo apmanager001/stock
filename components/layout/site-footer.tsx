@@ -13,8 +13,8 @@ export function SiteFooter() {
               {siteConfig.name}
             </p>
             <p className="mt-3 max-w-xl leading-7 text-base-content/68">
-              A reusable starting point for polished authenticated apps with
-              Next.js, Better Auth, TanStack Query, and MongoDB.
+              A stock tracking workspace with public movers, authenticated
+              wishlists, and detail pages backed by Yahoo Finance plus MongoDB.
             </p>
           </div>
 
@@ -56,10 +56,12 @@ export function SiteFooter() {
 
         <div className="mt-8 flex flex-col gap-3 border-t border-base-300/60 pt-6 text-sm text-base-content/55 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            {year} {siteConfig.name}. Built to be forked and extended.
+            {year} {siteConfig.name}. Market moves, watchlists, and news in one
+            app.
           </p>
           <p>
-            Homepage, auth routes, Mongo utilities, and query hooks included.
+            Built with Next.js, Better Auth, MongoDB, Mongoose, and Yahoo
+            Finance.
           </p>
         </div>
       </div>

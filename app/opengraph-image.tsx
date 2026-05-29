@@ -8,7 +8,7 @@ export const size = {
 
 export const contentType = "image/png";
 
-export const alt = "Foundry Stack template preview";
+export const alt = "TapeDeck stock market dashboard preview";
 
 export default function OpenGraphImage() {
   return new ImageResponse(
@@ -65,7 +65,7 @@ export default function OpenGraphImage() {
                 fontWeight: 700,
               }}
             >
-              F
+              T
             </div>
             <div
               style={{ display: "flex", flexDirection: "column", gap: "6px" }}
@@ -78,7 +78,7 @@ export default function OpenGraphImage() {
                   color: "rgba(71, 85, 105, 0.9)",
                 }}
               >
-                Cloneable starter
+                Market dashboard
               </div>
               <div style={{ fontSize: "34px", fontWeight: 700 }}>
                 {siteConfig.name}
@@ -97,7 +97,7 @@ export default function OpenGraphImage() {
                 maxWidth: "900px",
               }}
             >
-              Better Auth, MongoDB, analytics, and SEO already wired.
+              Track movers, save a wishlist, and open stock charts with news.
             </div>
             <div
               style={{

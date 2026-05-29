@@ -59,6 +59,7 @@ Important:
 
 - The placeholder GA value `G-XXXXXXXXXX` is intentionally ignored by the app. Analytics will not load until you replace it with a real measurement ID.
 - Do not rely on the development fallback secret in `auth.ts` outside local setup.
+- The app does not silently fall back to `127.0.0.1` for MongoDB anymore. If `MONGODB_URI` or `mongodb_uri` is missing, auth and persistence now fail fast instead of writing to the wrong database.
 
 ## 4. Finalize Authentication
 

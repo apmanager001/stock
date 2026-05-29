@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = createPageMetadata({
   title: "Register",
   description:
-    "Create an account in the template app to test Better Auth, MongoDB, and the protected dashboard flow.",
+    "Create an account to save stock tickers to your personal wishlist.",
   path: "/register",
   noIndex: true,
 });
@@ -14,13 +14,13 @@ export const metadata: Metadata = createPageMetadata({
 export default function RegisterPage() {
   return (
     <AuthShell
-      badge="New workspace"
+      badge="New watchlist"
       title="Create your account"
-      description="Registering is the first step toward turning this starter into a real product. The form is ready for Better Auth email and password flows."
+      description="Create an account to start saving stock symbols, tracking their price action, and opening detailed quote pages whenever you need them."
       highlights={[
-        "Client-side validation with Zod",
-        "Better Auth route scaffold at /api/auth/[...all]",
-        "Global header and footer shared across every route",
+        "Email and password auth with Better Auth",
+        "Mongo-backed wishlist persistence",
+        "A public homepage for movers and market headlines",
       ]}
       alternateHref="/login"
       alternateText="Already have an account?"
