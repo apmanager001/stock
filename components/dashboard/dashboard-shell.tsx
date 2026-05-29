@@ -231,15 +231,6 @@ export function DashboardShell({
     return (
       <div className="glass-panel min-w-0 rounded-4xl border border-base-300/70 p-6 shadow-lg shadow-primary/5 sm:p-8">
         <div className="space-y-6">
-          {/* <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between xl:flex-col">
-            <div className="min-w-0">
-              <div className="badge badge-outline rounded-full border-secondary/30 bg-base-100/80 px-4 py-4 text-xs uppercase tracking-[0.24em] text-secondary">
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                Wishlist
-              </div>
-            </div>
-          </div> */}
-
           <div className="border-base-300/60 ">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12 text-primary">
@@ -255,16 +246,13 @@ export function DashboardShell({
               </div>
             </div>
 
-            <form
-              action={addToWatchlistAction}
-              className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] xl:grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_auto]"
-            >
+            <form action={addToWatchlistAction} className="mt-6 flex md:gap-2">
               <div className="flex-1">
                 <StockSearchInput name="symbol" inputId={searchInputId} />
               </div>
               <button
                 type="submit"
-                className="btn btn-primary h-13 rounded-full px-6 text-base xl:w-full 2xl:w-auto"
+                className="btn btn-primary h-13 rounded-l-none md:rounded-full text-base"
               >
                 Save
               </button>
@@ -275,24 +263,13 @@ export function DashboardShell({
               </div>
             ) : null}
             <p className="mt-3 text-sm text-base-content/56">
-              Search and add stock to your wishlist.
+              Search by ticker or company name and add stock to your wishlist.
             </p>
           </div>
-
-          {/* <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
-                Stocks you are following
-              </p>
-              <p className="mt-2 text-sm text-base-content/58">
-                Click any row to open that stock in the detail panel.
-              </p>
-            </div>
-          </div> */}
         </div>
 
         {watchlistCards.length === 0 ? (
-          <div className="mt-6 rounded-4xl border border-dashed border-base-300/80 bg-base-100/70 p-10 text-center">
+          <div className="mt-4 rounded-4xl border border-dashed border-base-300/80 bg-base-100/70 p-10 text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-base-content/42">
               No symbols saved yet
             </p>
@@ -305,7 +282,7 @@ export function DashboardShell({
             </p>
           </div>
         ) : (
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 space-y-3 mb-24 lg:mb-0">
             {watchlist.map((item) => {
               const stock = cardLookup.get(item.symbol) ?? {
                 symbol: item.symbol,
@@ -340,7 +317,7 @@ export function DashboardShell({
                     className={`block w-full text-left ${isSelected ? "cursor-default" : "cursor-pointer"}`}
                     aria-pressed={isSelected}
                   >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="flex gap-3 flex-row items-start justify-between sm:gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="truncate text-base font-semibold text-base-content sm:text-lg">
@@ -372,52 +349,53 @@ export function DashboardShell({
                     </div>
                   </button>
 
-                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="mt-4 grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-3">
                     <button
                       type="button"
                       onClick={() => handleSelectStock(stock.symbol)}
-                      className="flex min-w-0 flex-1 flex-col items-start gap-3 rounded-2xl border border-base-300/60 bg-base-100/70 px-3 py-2 text-left sm:flex-row sm:items-center"
+                      className={[
+                        "group flex min-w-0 items-center rounded-2xl px-2 py-2 text-left transition-colors",
+                        isSelected ? "bg-primary/8" : "hover:bg-base-100/70",
+                      ].join(" ")}
                       aria-pressed={isSelected}
                     >
-                      <div className="min-w-0 sm:shrink-0">
+                      <div className="min-w-0 flex-1">
                         <StockSparkline
                           symbol={stock.symbol}
                           points={stock.dayChart}
                           positive={isPositive}
-                          className="h-10 w-24 sm:w-28"
+                          className="h-11 w-full"
                         />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/48">
-                          <span className="truncate">
-                            Added {formatDateTime(item.addedAt)}
-                          </span>
-                          <span
-                            className={
-                              isPositive ? "text-success" : "text-error"
-                            }
-                          >
-                            {isPositive ? "Up today" : "Down today"}
-                          </span>
-                        </div>
                       </div>
                     </button>
 
                     <form
                       action={removeFromWatchlistAction}
-                      className="self-end sm:self-auto sm:shrink-0"
+                      className="min-w-0"
                     >
                       <input type="hidden" name="symbol" value={item.symbol} />
                       <button
                         type="submit"
-                        className="btn btn-ghost btn-sm btn-circle"
+                        className="btn btn-ghost h-full w-full justify-center rounded-2xl text-error hover:bg-error/10"
                         aria-label={`Remove ${item.symbol} from wishlist`}
                         title={`Remove ${item.symbol}`}
                       >
-                        <Trash2 className="h-4 w-4" color="red" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </form>
+                  </div>
+
+                  <div className="min-w-0 mt-3">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/48">
+                      <span className="truncate">
+                        Added {formatDateTime(item.addedAt)}
+                      </span>
+                      <span
+                        className={isPositive ? "text-success" : "text-error"}
+                      >
+                        {isPositive ? "Up today" : "Down today"}
+                      </span>
+                    </div>
                   </div>
                 </article>
               );
@@ -580,7 +558,7 @@ export function DashboardShell({
 
         <div
           className={[
-            "absolute inset-y-0 left-0 w-[min(88vw,26rem)] overflow-y-auto bg-neutral p-3 backdrop-blur-sm transition-transform duration-300 ease-out will-change-transform sm:p-4",
+            "absolute inset-y-0 left-0 w-[min(88vw,26rem)] overflow-y-auto bg-base-300/60 p-3 backdrop-blur-sm transition-transform duration-300 ease-out will-change-transform sm:p-4",
             isWishlistDrawerOpen ? "translate-x-0" : "-translate-x-full",
           ].join(" ")}
         >

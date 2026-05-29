@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { Newspaper, TrendingUp } from "lucide-react";
+import {
+  CircleHelp,
+  Moon,
+  MoonStar,
+  Newspaper,
+  Sunrise,
+  Sun,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
 import { PriceChart } from "@/components/stocks/price-chart";
 import {
   stockChartRanges,
@@ -27,6 +36,87 @@ type Metric = {
   value: string;
 };
 
+type MarketStateBadgeConfig = {
+  label: string;
+  tooltip: string;
+  icon: LucideIcon;
+};
+
+const marketStateBadgeConfigs: Record<string, MarketStateBadgeConfig> = {
+  REGULAR: {
+    label: "Regular",
+    tooltip: "Market is open for regular trading hours.",
+    icon: Sun,
+  },
+  OPEN: {
+    label: "Regular",
+    tooltip: "Market is open for regular trading hours.",
+    icon: Sun,
+  },
+  PRE: {
+    label: "Pre market",
+    tooltip: "Market is in pre-market trading.",
+    icon: Sunrise,
+  },
+  PREPRE: {
+    label: "Pre market",
+    tooltip: "Market is in pre-market trading.",
+    icon: Sunrise,
+  },
+  POST: {
+    label: "Post market",
+    tooltip: "Market is in after-hours trading.",
+    icon: MoonStar,
+  },
+  POSTPOST: {
+    label: "Post market",
+    tooltip: "Market is in after-hours trading.",
+    icon: MoonStar,
+  },
+  CLOSED: {
+    label: "Closed",
+    tooltip: "Market is closed right now.",
+    icon: Moon,
+  },
+  CLOSE: {
+    label: "Closed",
+    tooltip: "Market is closed right now.",
+    icon: Moon,
+  },
+};
+
+function toTitleCase(value: string) {
+  return value.replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function getMarketStateBadgeConfig(
+  marketState: string | null | undefined,
+): MarketStateBadgeConfig {
+  const normalizedState = marketState?.trim().toUpperCase();
+
+  if (normalizedState && marketStateBadgeConfigs[normalizedState]) {
+    return marketStateBadgeConfigs[normalizedState];
+  }
+
+  if (normalizedState) {
+    const label = toTitleCase(
+      normalizedState.toLowerCase().replace(/[_-]+/g, " "),
+    );
+
+    return {
+      label,
+      tooltip: `Market session is reported as ${label.toLowerCase()}.`,
+      icon: CircleHelp,
+    };
+  }
+
+  return {
+    label: "Market data",
+    tooltip: "Current market session is unavailable.",
+    icon: CircleHelp,
+  };
+}
+
 function buildRangeHref(base: string, range: string) {
   return `${base}${base.includes("?") ? "&" : "?"}range=${range}`;
 }
@@ -38,6 +128,8 @@ export function StockDetailPanel({
   onRangeChange,
   isLoading = false,
 }: StockDetailPanelProps) {
+  const marketStateBadge = getMarketStateBadgeConfig(stock.marketState);
+  const MarketStateIcon = marketStateBadge.icon;
   const metrics: Metric[] = [
     {
       label: "Previous close",
@@ -81,17 +173,31 @@ export function StockDetailPanel({
     },
   ];
 
+  const stockDivHighLow = [
+    {
+      id: "dividend-yield",
+      label: "Dividend yield",
+      value:
+        typeof stock.dividendYield === "number" && stock.dividendYield > 0
+          ? `${stock.dividendYield.toFixed(2)}%`
+          : "N/A",
+    },
+    {
+      id: "week-low",
+      label: "52 week low",
+      value: formatCurrency(stock.fiftyTwoWeekLow, stock.currency ?? "USD"),
+    },
+    {
+      id: "week-high",
+      label: "52 week high",
+      value: formatCurrency(stock.fiftyTwoWeekHigh, stock.currency ?? "USD"),
+    },
+  ];
+
   return (
     <div className="min-w-0 space-y-8">
       <div className="glass-panel min-w-0 rounded-4xl border border-base-300/70 p-8 shadow-lg shadow-primary/5 sm:p-10">
-        <div className="flex min-w-0 flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">{headerAction}</div>
-          <div className="badge badge-outline rounded-full border-secondary/30 bg-base-100/80 px-4 py-4 text-xs uppercase tracking-[0.24em] text-secondary">
-            {stock.marketState ?? "Market data"}
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+        <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
               {stock.symbol}
@@ -126,9 +232,21 @@ export function StockDetailPanel({
 
           <div className="grid gap-4 sm:grid-cols-2 lg:max-w-md lg:grid-cols-1 lg:justify-self-end">
             <div className="hidden rounded-3xl border border-base-300/70 bg-base-100/80 p-5 lg:block">
-              <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
-                Current price
-              </p>
+              <div className="flex justify-between items-center gap-2">
+                <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
+                  Current price
+                </p>
+                <div
+                  className="tooltip tooltip-left tooltip-secondary inline-flex cursor-help"
+                  data-tip={marketStateBadge.tooltip}
+                  tabIndex={0}
+                  aria-label={marketStateBadge.tooltip}
+                >
+                  <div className="gap-2 rounded-full text-xs uppercase tracking-[0.24em] text-secondary">
+                    <MarketStateIcon className="h-3.5 w-3.5" />
+                  </div>
+                </div>
+              </div>
               <p className="mt-3 text-3xl font-semibold tracking-tight text-base-content sm:text-4xl">
                 {formatCurrency(stock.price, stock.currency ?? "USD")}
               </p>
@@ -146,30 +264,25 @@ export function StockDetailPanel({
                 Updated {formatDateTime(stock.updatedAt)}
               </p>
             </div>
-            {stock.dividendYield && (
-                <div className="rounded-3xl border border-base-300/70 bg-base-100/80 p-5">
-                <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
-                    Dividend yield
-                </p>
-                <p className="mt-3 text-2xl font-semibold text-base-content">
-                    {typeof stock.dividendYield === "number"
-                    ? `${stock.dividendYield.toFixed(2)}%`
-                    : "--"}
-                </p>
-                </div>
-            )}
-            <div className="rounded-3xl border border-base-300/70 bg-base-100/80 p-5">
-              <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
-                52 week high
-              </p>
-              <p className="mt-3 text-2xl font-semibold text-base-content">
-                {formatCurrency(
-                  stock.fiftyTwoWeekHigh,
-                  stock.currency ?? "USD",
-                )}
-              </p>
+            <div className="sm:mt-2 flex flex-col justify-center gap-6">
+              {headerAction}
             </div>
           </div>
+        </div>
+        <div className="flex flex-wrap items-center md:justify-end gap-2 md:gap-4 w-full mt-2">
+          {stockDivHighLow.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-3xl border border-base-300/70 bg-base-100/80 max-w-28 md:max-w-none p-2 md:p-5"
+            >
+              <p className="text-xs uppercase tracking-[0.22em] text-base-content/42">
+                {item.label}
+              </p>
+              <p className="mt-3 text-2xl font-semibold text-base-content">
+                {item.value}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -202,7 +315,7 @@ export function StockDetailPanel({
                         key={key}
                         type="button"
                         onClick={() => onRangeChange(range)}
-                        className={className}
+                        className={`${className} cursor-pointer`}
                         disabled={isLoading && key !== stock.chartRange}
                       >
                         {config.label}
@@ -245,7 +358,7 @@ export function StockDetailPanel({
               </h2>
             </div>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-6 grid gap-4 grid-cols-2 xl:grid-cols-3">
               {metrics.map((metric) => (
                 <article
                   key={metric.label}

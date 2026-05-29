@@ -21,7 +21,7 @@ export function MoverList({
   emptyMessage,
 }: MoverListProps) {
   return (
-    <div className="space-y-5">
+    <div className="min-w-0 space-y-5">
       <div className="flex items-center gap-3">
         <div
           className={`flex h-11 w-11 items-center justify-center rounded-2xl ${iconClassName}`}
@@ -43,8 +43,8 @@ export function MoverList({
           {emptyMessage}
         </div>
       ) : (
-        <div className="glass-panel overflow-hidden rounded-4xl border border-base-300/70 shadow-lg shadow-primary/5">
-          <div className="grid grid-cols-[minmax(0,1fr)_5rem_4.75rem] gap-4 border-b border-base-300/60 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42 sm:grid-cols-[minmax(0,1fr)_7rem_5.5rem] sm:px-5">
+        <div className="glass-panel min-w-0 overflow-hidden rounded-4xl border border-base-300/70 shadow-lg shadow-primary/5">
+          <div className="grid grid-cols-[minmax(0,1fr)_4rem_4rem] gap-3 border-b border-base-300/60 px-3 py-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-base-content/42 sm:grid-cols-[minmax(0,1fr)_7rem_5.5rem] sm:gap-4 sm:px-5 sm:text-[11px]">
             <span>Name</span>
             <span className="text-center">Day</span>
             <span className="text-right">Move</span>
@@ -58,7 +58,7 @@ export function MoverList({
                 <Link
                   key={stock.symbol}
                   href={`/stocks/${stock.symbol}`}
-                  className="flex items-center gap-4 px-4 py-4 transition-colors hover:bg-base-100/85 sm:px-5"
+                  className="grid min-w-0 grid-cols-[minmax(0,1fr)_4rem_4rem] items-center gap-3 px-3 py-4 transition-colors hover:bg-base-100/85 sm:grid-cols-[minmax(0,1fr)_7rem_5.5rem] sm:gap-4 sm:px-5"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -74,15 +74,16 @@ export function MoverList({
                     </p>
                   </div>
 
-                  <div className="shrink-0">
+                  <div className="justify-self-center">
                     <StockSparkline
                       symbol={stock.symbol}
                       points={stock.dayChart}
                       positive={isPositive}
+                      className="h-10 w-16 sm:h-11 sm:w-28"
                     />
                   </div>
 
-                  <div className="w-19 shrink-0 text-right sm:w-22">
+                  <div className="w-16 text-right sm:w-22">
                     <p className="text-sm font-semibold text-base-content sm:text-base">
                       {formatCurrency(stock.price, stock.currency ?? "USD")}
                     </p>

@@ -118,8 +118,8 @@ export function PriceChart({
 
   return (
     <div className="rounded-4xl border border-base-300/70 bg-base-100/75 p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="max-w-40">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
             Price history
           </p>

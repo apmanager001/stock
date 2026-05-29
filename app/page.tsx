@@ -150,92 +150,46 @@ export default async function Home() {
         </div>
 
         <div className="relative">
-          <div className="absolute inset-0 rounded-4xl bg-linear-to-br from-primary/20 via-transparent to-secondary/20 blur-3xl" />
-          <div className="glass-panel relative overflow-hidden rounded-4xl border border-base-300/70 p-6 shadow-[0_30px_120px_-44px_color-mix(in_oklab,var(--color-primary)_45%,transparent)] sm:p-7">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/45">
-                  Built for this stack
-                </p>
-                <h2 className="mt-2 font-display text-2xl font-semibold text-base-content">
-                  Use the template, but ship the stock product.
-                </h2>
+          <section className="section-shell mt-16 grid gap-5 lg:grid-cols-1">
+            <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary/12 text-secondary">
+                <TrendingUp className="h-5 w-5" />
               </div>
-              <span className="badge badge-accent badge-outline rounded-full inline-flex items-center px-4 py-2 font-medium leading-none whitespace-nowrap">
-                Auth + data ready
-              </span>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              {productHighlights.map((highlight) => (
-                <div
-                  key={highlight}
-                  className="rounded-3xl border border-base-300/70 bg-base-100/80 p-5"
-                >
-                  <p className="text-sm leading-6 text-base-content/72">
-                    {highlight}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 rounded-3xl bg-neutral p-5 text-neutral-content shadow-xl shadow-neutral/15">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-neutral-content/55">
-                Stack from package.json
+              <h2 className="mt-5 font-display text-2xl font-semibold text-base-content">
+                Daily movers
+              </h2>
+              <p className="mt-3 leading-7 text-base-content/70">
+                Open the session with a clean read on who is ripping higher and who
+                is under pressure.
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {siteConfig.stack.map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-full border border-white/12 bg-white/8 px-3 py-2 text-sm"
-                  >
-                    {item}
-                  </span>
-                ))}
+            </article>
+            <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+                <ShieldCheck className="h-5 w-5" />
               </div>
-            </div>
-          </div>
+              <h2 className="mt-5 font-display text-2xl font-semibold text-base-content">
+                Personal wishlist
+              </h2>
+              <p className="mt-3 leading-7 text-base-content/70">
+                Sign in, save tickers to MongoDB, and come back to the same set of
+                names across sessions.
+              </p>
+            </article>
+            <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/14 text-accent">
+                <Newspaper className="h-5 w-5" />
+              </div>
+              <h2 className="mt-5 font-display text-2xl font-semibold text-base-content">
+                Context with news
+              </h2>
+              <p className="mt-3 leading-7 text-base-content/70">
+                Each stock detail page pairs price action with the latest Yahoo
+                Finance headlines.
+              </p>
+            </article>
+          </section>
         </div>
       </section>
-
-      {/* <section className="section-shell mt-16 grid gap-5 lg:grid-cols-3">
-        <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary/12 text-secondary">
-            <TrendingUp className="h-5 w-5" />
-          </div>
-          <h2 className="mt-5 font-display text-2xl font-semibold text-base-content">
-            Daily movers
-          </h2>
-          <p className="mt-3 leading-7 text-base-content/70">
-            Open the session with a clean read on who is ripping higher and who
-            is under pressure.
-          </p>
-        </article>
-        <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <h2 className="mt-5 font-display text-2xl font-semibold text-base-content">
-            Personal wishlist
-          </h2>
-          <p className="mt-3 leading-7 text-base-content/70">
-            Sign in, save tickers to MongoDB, and come back to the same set of
-            names across sessions.
-          </p>
-        </article>
-        <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/14 text-accent">
-            <Newspaper className="h-5 w-5" />
-          </div>
-          <h2 className="mt-5 font-display text-2xl font-semibold text-base-content">
-            Context with news
-          </h2>
-          <p className="mt-3 leading-7 text-base-content/70">
-            Each stock detail page pairs price action with the latest Yahoo
-            Finance headlines.
-          </p>
-        </article>
-      </section> */}
 
       <section id="news" className="section-shell mt-16">
         <div className="flex flex-wrap items-end justify-between gap-4">

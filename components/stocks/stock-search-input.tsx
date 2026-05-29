@@ -16,7 +16,7 @@ type SearchResponse = {
 
 export function StockSearchInput({
   name,
-  placeholder = "Search by ticker or company name",
+  placeholder = "Search...",
   inputId = "search",
 }: StockSearchInputProps) {
   const [query, setQuery] = useState("");
@@ -119,7 +119,7 @@ export function StockSearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="input input-bordered h-13 w-full rounded-2xl bg-base-100/80 pl-11 pr-11"
+          className="input input-bordered h-13 w-full rounded-r-none md:rounded-2xl bg-base-100/80 pl-11 pr-11"
           autoComplete="off"
           spellCheck={false}
         />
