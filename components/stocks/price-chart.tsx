@@ -104,7 +104,8 @@ export function PriceChart({
       return;
     }
 
-    const relativeX = ((event.clientX - bounds.left) / bounds.width) * chartWidth;
+    const relativeX =
+      ((event.clientX - bounds.left) / bounds.width) * chartWidth;
     const clampedX = Math.min(
       Math.max(relativeX, chartPadding),
       chartWidth - chartPadding,
@@ -134,7 +135,9 @@ export function PriceChart({
           <p className="mt-2 text-lg font-semibold text-base-content">
             {formatCurrency(selectedPoint.close, currency)}
           </p>
-          <p className="mt-2 text-xs text-base-content/56">{selectedDateLabel}</p>
+          <p className="mt-2 text-xs text-base-content/56">
+            {selectedDateLabel}
+          </p>
         </div>
       </div>
 
@@ -155,7 +158,13 @@ export function PriceChart({
             </linearGradient>
           </defs>
 
-          <rect x="0" y="0" width={chartWidth} height={chartHeight} fill="transparent" />
+          <rect
+            x="0"
+            y="0"
+            width={chartWidth}
+            height={chartHeight}
+            fill="transparent"
+          />
 
           {[0.25, 0.5, 0.75].map((ratio) => {
             const y = chartPadding + usableHeight * ratio;
@@ -226,9 +235,7 @@ export function PriceChart({
       </div>
 
       <div className="mt-4 flex items-center justify-between text-sm text-base-content/56">
-        <span>
-          {shortDateFormatter.format(new Date(points[0].date))}
-        </span>
+        <span>{shortDateFormatter.format(new Date(points[0].date))}</span>
         <span>
           {shortDateFormatter.format(
             new Date(points.at(-1)?.date ?? points[0].date),
