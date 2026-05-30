@@ -8,6 +8,8 @@ type StockSearchInputProps = {
   name: string;
   placeholder?: string;
   inputId?: string;
+  inputClassName?: string;
+  onValueChange?: (value: string, result: StockSearchResult | null) => void;
 };
 
 type SearchResponse = {
@@ -18,6 +20,8 @@ export function StockSearchInput({
   name,
   placeholder = "Search...",
   inputId = "search",
+  inputClassName,
+  onValueChange,
 }: StockSearchInputProps) {
   const [query, setQuery] = useState("");
   const [selectedResult, setSelectedResult] =
@@ -78,6 +82,7 @@ export function StockSearchInput({
     setResults([]);
     setIsLoading(false);
     setIsOpen(false);
+    onValueChange?.(result.symbol, result);
   }
 
   function handleBlur() {
@@ -110,6 +115,7 @@ export function StockSearchInput({
             setSelectedResult(null);
             setIsOpen(true);
             setIsLoading(hasValue);
+            onValueChange?.(nextQuery, null);
 
             if (!hasValue) {
               setResults([]);
@@ -119,7 +125,12 @@ export function StockSearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="input input-bordered h-13 w-full rounded-r-none md:rounded-2xl bg-base-100/80 pl-11 pr-11"
+          className={[
+            "input input-bordered h-13 w-full rounded-r-none bg-base-100/80 pl-11 pr-11 md:rounded-2xl",
+            inputClassName,
+          ]
+            .filter(Boolean)
+            .join(" ")}
           autoComplete="off"
           spellCheck={false}
         />

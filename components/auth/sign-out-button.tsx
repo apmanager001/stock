@@ -7,11 +7,19 @@ import { authClient } from "@/lib/auth/client";
 
 type SignOutButtonProps = {
   className?: string;
+  variant?: "primary" | "menu";
 };
 
-export function SignOutButton({ className }: SignOutButtonProps) {
+export function SignOutButton({
+  className,
+  variant = "primary",
+}: SignOutButtonProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
+  const variantClassName =
+    variant === "menu"
+      ? "btn-ghost w-full justify-start rounded-xl border-0 bg-transparent px-3 text-base font-medium text-error shadow-none hover:bg-error/10 hover:text-error"
+      : "btn-primary rounded-full px-6";
 
   async function handleSignOut() {
     setIsPending(true);
@@ -28,9 +36,7 @@ export function SignOutButton({ className }: SignOutButtonProps) {
   return (
     <button
       type="button"
-      className={["btn btn-primary rounded-full px-6", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={["btn", variantClassName, className].filter(Boolean).join(" ")}
       onClick={handleSignOut}
       disabled={isPending}
     >

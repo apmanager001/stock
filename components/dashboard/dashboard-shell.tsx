@@ -232,17 +232,29 @@ export function DashboardShell({
       <div className="glass-panel min-w-0 rounded-4xl border border-base-300/70 p-6 shadow-lg shadow-primary/5 sm:p-8">
         <div className="space-y-6">
           <div className="border-base-300/60 ">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-                <CirclePlus className="h-5 w-5" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+                  <CirclePlus className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
+                    Save to Wishlist
+                  </p>
+                  <h2 className="mt-1 font-display text-3xl font-semibold text-base-content">
+                    Your Wishlist
+                  </h2>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
-                  Save to Wishlist
+              <div className='max-w-12 text-xs'>
+                <div className="badge badge-primary">
+                  {watchlistCards.length}
+                </div>
+                <p className="mt-1 text-xs text-base-content/62">
+                  {watchlistCards[0]
+                    ? formatDateTime(watchlistCards[0].updatedAt)
+                    : "--"}
                 </p>
-                <h2 className="mt-1 font-display text-3xl font-semibold text-base-content">
-                  Your Wishlist
-                </h2>
               </div>
             </div>
 

@@ -15,14 +15,16 @@ export const siteConfig = {
     "Better Auth stock app",
     "stock charts and news",
     "market movers dashboard",
+    "Paper Money trading",
   ],
   nav: [
     { href: "/", label: "Market" },
-    { href: "/dashboard", label: "Wishlist" },
   ],
   footerLinks: [
     { href: "/", label: "Market" },
+    { href: "/calculators", label: "Calculators" },
     { href: "/dashboard", label: "Wishlist" },
+    { href: "/paper-money", label: "Paper Money" },
     { href: "/login", label: "Sign in" },
     { href: "/register", label: "Create account" },
   ],

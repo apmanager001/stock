@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Orbit, Sparkles, X } from "lucide-react";
+import {
+  Banknote,
+  Calculator,
+  Menu,
+  Orbit,
+  Sparkles,
+  UserRound,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { authClient } from "@/lib/auth/client";
@@ -37,7 +45,7 @@ export function SiteHeader() {
                     {siteConfig.name}
                   </p>
                   <p className="text-xs uppercase tracking-[0.24em] text-base-content/45">
-                    Stocks + Auth + Data
+                    Stocks + Portfolio + Wishlist
                   </p>
                 </div>
               </Link>
@@ -71,7 +79,52 @@ export function SiteHeader() {
               </div>
 
               {isPending ? null : isAuthenticated ? (
-                <SignOutButton className="btn-sm px-5" />
+                <div className="dropdown dropdown-end">
+                  <button
+                    type="button"
+                    tabIndex={0}
+                    className="btn btn-ghost btn-circle border border-base-300/60 bg-base-100/80"
+                    aria-label="Open account menu"
+                  >
+                    <UserRound className="h-5 w-5" />
+                  </button>
+
+                  <ul
+                    tabIndex={0}
+                    className="menu menu-sm dropdown-content z-20 mt-3 w-52 rounded-2xl border border-base-300/70 bg-base-100 p-2 shadow-lg shadow-primary/10 gap-2"
+                  >
+                    <li className="hover:bg-primary/40 rounded-xl">
+                      <Link
+                        href="/calculators"
+                        className="rounded-xl px-3 py-3 font-extrabold hover:text-white"
+                      >
+                        <Calculator className="h-4 w-4 text-accent-content" />
+                        Calculators
+                      </Link>
+                    </li>
+                    <li className="hover:bg-primary/40 rounded-xl">
+                      <Link
+                        href="/dashboard"
+                        className="rounded-xl px-3 py-3 font-extrabold hover:text-white"
+                      >
+                        <Sparkles className="h-4 w-4 text-accent-content" />
+                        Wishlist
+                      </Link>
+                    </li>
+                    <li className="hover:bg-primary/40 rounded-xl">
+                      <Link
+                        href="/paper-money"
+                        className="rounded-xl px-3 py-3 font-extrabold hover:text-white"
+                      >
+                        <Banknote className="h-4 w-4 text-accent-content" />
+                        Paper Money
+                      </Link>
+                    </li>
+                    <li>
+                      <SignOutButton variant="menu" />
+                    </li>
+                  </ul>
+                </div>
               ) : (
                 <>
                   <Link
@@ -131,7 +184,30 @@ export function SiteHeader() {
 
               <div className="mt-4 border-t border-base-300/60 pt-4">
                 {isPending ? null : isAuthenticated ? (
-                  <SignOutButton className="w-full" />
+                  <div className="grid gap-2">
+                    <Link
+                      href="/calculators"
+                      className="rounded-2xl bg-base-100/80 px-4 py-3 text-sm font-medium text-base-content/72 transition-colors hover:bg-base-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Calculators
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      className="rounded-2xl bg-base-100/80 px-4 py-3 text-sm font-medium text-base-content/72 transition-colors hover:bg-base-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Wishlist
+                    </Link>
+                    <Link
+                      href="/paper-money"
+                      className="rounded-2xl bg-base-100/80 px-4 py-3 text-sm font-medium text-base-content/72 transition-colors hover:bg-base-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Paper Money
+                    </Link>
+                    <SignOutButton className="w-full" />
+                  </div>
                 ) : (
                   <div className="grid gap-2 sm:grid-cols-2">
                     <Link
