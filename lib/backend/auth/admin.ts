@@ -23,12 +23,18 @@ type AuthUserAdminDocument = {
   role?: string | null;
 };
 
-function hasAdminAccess(user: { admin?: unknown; role?: unknown } | null | undefined) {
-  return user?.admin === true || user?.admin === "true" || user?.role === "admin";
+function hasAdminAccess(
+  user: { admin?: unknown; role?: unknown } | null | undefined,
+) {
+  return (
+    user?.admin === true || user?.admin === "true" || user?.role === "admin"
+  );
 }
 
 function buildUserLookupFilter(user: AdminSessionUser) {
-  const conditions: Array<Record<string, string | ObjectId>> = [{ id: user.id }];
+  const conditions: Array<Record<string, string | ObjectId>> = [
+    { id: user.id },
+  ];
 
   if (user.email) {
     conditions.push({ email: user.email });

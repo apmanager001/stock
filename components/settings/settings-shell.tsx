@@ -32,13 +32,15 @@ const notificationOptions: NotificationSetting[] = [
   {
     id: "wishlistNews",
     title: "Wishlist news",
-    description: "Updates when saved names have fresh headlines worth reviewing.",
+    description:
+      "Updates when saved names have fresh headlines worth reviewing.",
     icon: Bell,
   },
   {
     id: "productUpdates",
     title: "Product updates",
-    description: "Occasional notes when new tools or workflows ship inside TapeDeck.",
+    description:
+      "Occasional notes when new tools or workflows ship inside TapeDeck.",
     icon: Sparkles,
   },
 ] as const;
@@ -120,9 +122,7 @@ export function SettingsShell({ firstName, email }: SettingsShellProps) {
                 type="checkbox"
                 className="toggle toggle-primary"
                 checked={notificationsEnabled}
-                onChange={() =>
-                  setNotificationsEnabled((enabled) => !enabled)
-                }
+                onChange={() => setNotificationsEnabled((enabled) => !enabled)}
                 aria-label="Toggle all notifications"
               />
             </label>
@@ -137,7 +137,9 @@ export function SettingsShell({ firstName, email }: SettingsShellProps) {
                   key={option.id}
                   className={[
                     "rounded-[1.75rem] border border-base-300/70 p-5 transition-opacity",
-                    notificationsEnabled ? "bg-base-100/80" : "bg-base-100/58 opacity-68",
+                    notificationsEnabled
+                      ? "bg-base-100/80"
+                      : "bg-base-100/58 opacity-68",
                   ].join(" ")}
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
