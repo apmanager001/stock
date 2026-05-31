@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import { GoogleAnalyticsWebVitals } from "@/components/analytics/google-web-vitals";
+import Feedback from "@/components/feedback/page";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { AppProviders } from "@/components/providers/app-providers";
@@ -95,6 +96,7 @@ export default function RootLayout({
             <SiteHeader />
             <main className="flex-1">{children}</main>
             <SiteFooter />
+            <Feedback />
           </div>
         </AppProviders>
       </body>

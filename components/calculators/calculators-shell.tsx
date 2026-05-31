@@ -1,18 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Calculator,
   Coins,
   LineChart,
-  PanelLeft,
   RefreshCcw,
   Scale,
   ShieldCheck,
   Target,
   TrendingUp,
-  X,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -51,8 +48,7 @@ const calculatorDefinitions = [
     description: "Estimate yield and portfolio income from a position.",
     eyebrow: "Income planning",
     title: "Dividend calculator",
-    note:
-      "Yield is annual dividend per share divided by current share price. Taxes and future dividend changes are not included.",
+    note: "Yield is annual dividend per share divided by current share price. Taxes and future dividend changes are not included.",
     icon: Coins,
   },
   {
@@ -61,8 +57,7 @@ const calculatorDefinitions = [
     description: "Blend an existing position with a new purchase.",
     eyebrow: "Position management",
     title: "Cost basis calculator",
-    note:
-      "This assumes you are adding shares to an existing position and want the new weighted average cost.",
+    note: "This assumes you are adding shares to an existing position and want the new weighted average cost.",
     icon: Scale,
   },
   {
@@ -71,8 +66,7 @@ const calculatorDefinitions = [
     description: "Size a trade from account risk and stop distance.",
     eyebrow: "Risk control",
     title: "Position size calculator",
-    note:
-      "Share sizing uses your dollar risk budget divided by the difference between entry and stop price.",
+    note: "Share sizing uses your dollar risk budget divided by the difference between entry and stop price.",
     icon: ShieldCheck,
   },
   {
@@ -81,8 +75,7 @@ const calculatorDefinitions = [
     description: "Project future value with monthly contributions.",
     eyebrow: "Long-term planning",
     title: "Compound growth calculator",
-    note:
-      "Returns are compounded monthly and contributions are added at the end of each month.",
+    note: "Returns are compounded monthly and contributions are added at the end of each month.",
     icon: TrendingUp,
   },
   {
@@ -91,8 +84,7 @@ const calculatorDefinitions = [
     description: "Measure net trade outcome before you execute.",
     eyebrow: "Trade planning",
     title: "Profit and loss calculator",
-    note:
-      "Net profit assumes the fee field represents the total fees for the trade from entry through exit.",
+    note: "Net profit assumes the fee field represents the total fees for the trade from entry through exit.",
     icon: LineChart,
   },
   {
@@ -101,8 +93,7 @@ const calculatorDefinitions = [
     description: "See the rebound needed after a pullback.",
     eyebrow: "Recovery planning",
     title: "Break-even calculator",
-    note:
-      "Required gain is measured from the current price back to your original entry price.",
+    note: "Required gain is measured from the current price back to your original entry price.",
     icon: Target,
   },
   {
@@ -111,8 +102,7 @@ const calculatorDefinitions = [
     description: "Model a basic dividend reinvestment path.",
     eyebrow: "Income growth",
     title: "Dividend reinvestment calculator",
-    note:
-      "This assumes one dividend reinvestment at the end of each year using the year-end price.",
+    note: "This assumes one dividend reinvestment at the end of each year using the year-end price.",
     icon: RefreshCcw,
   },
 ] satisfies readonly CalculatorDefinition[];
@@ -211,6 +201,7 @@ function NumberField({
         ) : null}
         <input
           type="number"
+          id={label}
           inputMode="decimal"
           min={min}
           step={step}
@@ -240,12 +231,7 @@ type ResultTileProps = {
   valueClassName?: string;
 };
 
-function ResultTile({
-  label,
-  value,
-  hint,
-  valueClassName,
-}: ResultTileProps) {
+function ResultTile({ label, value, hint, valueClassName }: ResultTileProps) {
   return (
     <div className="rounded-3xl border border-base-300/70 bg-base-100/75 p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42">
@@ -259,7 +245,9 @@ function ResultTile({
       >
         {value}
       </p>
-      {hint ? <p className="mt-2 text-xs text-base-content/56">{hint}</p> : null}
+      {hint ? (
+        <p className="mt-2 text-xs text-base-content/56">{hint}</p>
+      ) : null}
     </div>
   );
 }
@@ -292,36 +280,39 @@ function CalculatorPanel({
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
             {eyebrow}
           </p>
-          <h2 className="mt-2 font-display text-3xl font-semibold text-base-content">
-            {title}
-          </h2>
+          <div className='flex gap-2 items-center my-2'>
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-primary/12 text-primary">
+              <Icon className="h-6 w-6" />
+            </div>
+            <h2 className="mt-2 font-display text-3xl font-semibold text-base-content">
+              {title}
+            </h2>
+          </div>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-base-content/62">
             {description}
           </p>
         </div>
-
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-primary/12 text-primary">
-          <Icon className="h-6 w-6" />
-        </div>
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-        <div className="grid gap-4">{fields}</div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-4">{fields}</div>
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {alertMessage ? (
             <div className="alert alert-warning rounded-2xl text-sm">
               {alertMessage}
             </div>
           ) : null}
-
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
           {results}
-
+          </div>
           <div className="rounded-3xl border border-base-300/70 bg-base-100/75 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42">
               Assumptions
             </p>
-            <p className="mt-2 text-sm leading-7 text-base-content/62">{note}</p>
+            <p className="mt-2 text-sm leading-7 text-base-content/62">
+              {note}
+            </p>
           </div>
         </div>
       </div>
@@ -380,7 +371,9 @@ function CalculatorSidebar({ selectedCalculator, onSelect }: SidebarProps) {
                   <Icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-semibold text-base-content">{calculator.label}</p>
+                  <p className="font-semibold text-base-content">
+                    {calculator.label}
+                  </p>
                   <p className="mt-1 text-sm leading-6 text-base-content/58">
                     {calculator.description}
                   </p>
@@ -404,10 +397,131 @@ function CalculatorSidebar({ selectedCalculator, onSelect }: SidebarProps) {
   );
 }
 
+function CalculatorBadgeTabs({ selectedCalculator, onSelect }: SidebarProps) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    function updateFadeVisibility() {
+      const currentContainer = scrollContainerRef.current;
+
+      if (!currentContainer) {
+        return;
+      }
+
+      const maxScrollLeft = Math.max(
+        currentContainer.scrollWidth - currentContainer.clientWidth,
+        0,
+      );
+      const nextShowLeftFade = currentContainer.scrollLeft > 0;
+      const nextShowRightFade = currentContainer.scrollLeft < maxScrollLeft - 1;
+
+      setShowLeftFade((current) =>
+        current === nextShowLeftFade ? current : nextShowLeftFade,
+      );
+      setShowRightFade((current) =>
+        current === nextShowRightFade ? current : nextShowRightFade,
+      );
+    }
+
+    updateFadeVisibility();
+    container.addEventListener("scroll", updateFadeVisibility, {
+      passive: true,
+    });
+    window.addEventListener("resize", updateFadeVisibility);
+
+    return () => {
+      container.removeEventListener("scroll", updateFadeVisibility);
+      window.removeEventListener("resize", updateFadeVisibility);
+    };
+  }, []);
+
+  return (
+    <div className="glass-panel rounded-4xl border border-base-300/70 p-4 shadow-lg shadow-primary/5 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
+            Quick switch
+          </p>
+          <h2 className="mt-1 font-display text-2xl font-semibold text-base-content">
+            Choose a tool
+          </h2>
+        </div>
+
+        <div className="badge badge-outline rounded-full border-primary/30 bg-base-100/80 px-3 py-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+          {calculatorDefinitions.length} tools
+        </div>
+      </div>
+
+      <div className="relative mt-4 overflow-hidden">
+        <div
+          className={[
+            "pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-linear-to-r from-base-100 via-base-100/90 to-transparent transition-opacity",
+            showLeftFade ? "opacity-100" : "opacity-0",
+          ].join(" ")}
+        />
+        <div
+          className={[
+            "pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-linear-to-l from-base-100 via-base-100/90 to-transparent transition-opacity",
+            showRightFade ? "opacity-100" : "opacity-0",
+          ].join(" ")}
+        />
+
+        <div
+          ref={scrollContainerRef}
+          className="flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-1 pb-1"
+        >
+          {calculatorDefinitions.map((calculator) => {
+            const isSelected = calculator.id === selectedCalculator;
+            const Icon = calculator.icon;
+
+            return (
+              <button
+                key={calculator.id}
+                type="button"
+                onClick={() => onSelect(calculator.id)}
+                aria-pressed={isSelected}
+                className={[
+                  "snap-start shrink-0 rounded-full border px-2.5 py-2 text-left transition-colors",
+                  isSelected
+                    ? "border-primary/35 bg-primary/8 text-primary"
+                    : "border-base-300/70 bg-base-100/80 text-base-content/72 hover:border-primary/20",
+                ].join(" ")}
+              >
+                <span className="flex items-center gap-2 whitespace-nowrap">
+                  <span
+                    className={[
+                      "flex h-7 w-7 items-center justify-center rounded-full",
+                      isSelected
+                        ? "bg-primary/14 text-primary"
+                        : "bg-base-200/70 text-base-content/58",
+                    ].join(" ")}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="pr-0.5 text-xs font-semibold sm:text-sm">
+                    {calculator.label}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
   const [selectedCalculator, setSelectedCalculator] =
     useState<CalculatorId>("dividend");
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [dividendForm, setDividendForm] = useState({
     sharePrice: "180",
     annualDividend: "4.80",
@@ -460,8 +574,7 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
     annualDividend !== null && dividendShares !== null
       ? annualDividend * dividendShares
       : null;
-  const quarterlyIncome =
-    annualIncome !== null ? annualIncome / 4 : null;
+  const quarterlyIncome = annualIncome !== null ? annualIncome / 4 : null;
   const monthlyIncome = annualIncome !== null ? annualIncome / 12 : null;
   const dividendPositionCost =
     dividendSharePrice && dividendShares !== null
@@ -541,7 +654,9 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
   const monthlyContribution = parseNonNegativeNumber(
     compoundGrowthForm.monthlyContribution,
   );
-  const compoundAnnualReturn = parseNumberInput(compoundGrowthForm.annualReturn);
+  const compoundAnnualReturn = parseNumberInput(
+    compoundGrowthForm.annualReturn,
+  );
   const compoundYears = parsePositiveNumber(compoundGrowthForm.years);
   const compoundMonths =
     typeof compoundYears === "number" ? Math.round(compoundYears * 12) : null;
@@ -572,7 +687,9 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
       ? compoundFutureValue - totalContributions
       : null;
   const portfolioMultiple =
-    compoundFutureValue !== null && totalContributions !== null && totalContributions > 0
+    compoundFutureValue !== null &&
+    totalContributions !== null &&
+    totalContributions > 0
       ? compoundFutureValue / totalContributions
       : null;
 
@@ -673,12 +790,12 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
   }
 
   const activeCalculatorDefinition =
-    calculatorDefinitions.find((calculator) => calculator.id === selectedCalculator) ??
-    calculatorDefinitions[0];
+    calculatorDefinitions.find(
+      (calculator) => calculator.id === selectedCalculator,
+    ) ?? calculatorDefinitions[0];
 
   function handleSelectCalculator(calculatorId: CalculatorId) {
     setSelectedCalculator(calculatorId);
-    setIsDrawerOpen(false);
   }
 
   function renderSelectedCalculator() {
@@ -698,7 +815,10 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
                   prefix="$"
                   value={dividendForm.sharePrice}
                   onChange={(value) =>
-                    setDividendForm((current) => ({ ...current, sharePrice: value }))
+                    setDividendForm((current) => ({
+                      ...current,
+                      sharePrice: value,
+                    }))
                   }
                   min="0"
                 />
@@ -718,7 +838,10 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
                   label="Shares owned"
                   value={dividendForm.shares}
                   onChange={(value) =>
-                    setDividendForm((current) => ({ ...current, shares: value }))
+                    setDividendForm((current) => ({
+                      ...current,
+                      shares: value,
+                    }))
                   }
                   min="0"
                   step="0.0001"
@@ -999,7 +1122,10 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
                   label="Years"
                   value={compoundGrowthForm.years}
                   onChange={(value) =>
-                    setCompoundGrowthForm((current) => ({ ...current, years: value }))
+                    setCompoundGrowthForm((current) => ({
+                      ...current,
+                      years: value,
+                    }))
                   }
                   min="0"
                   step="1"
@@ -1058,7 +1184,10 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
                   label="Shares"
                   value={profitLossForm.shares}
                   onChange={(value) =>
-                    setProfitLossForm((current) => ({ ...current, shares: value }))
+                    setProfitLossForm((current) => ({
+                      ...current,
+                      shares: value,
+                    }))
                   }
                   min="0"
                   step="0.0001"
@@ -1092,7 +1221,10 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
                   prefix="$"
                   value={profitLossForm.fees}
                   onChange={(value) =>
-                    setProfitLossForm((current) => ({ ...current, fees: value }))
+                    setProfitLossForm((current) => ({
+                      ...current,
+                      fees: value,
+                    }))
                   }
                   min="0"
                 />
@@ -1207,7 +1339,8 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
                 <ResultTile
                   label="Status"
                   value={
-                    typeof requiredGainPercent === "number" && requiredGainPercent === 0
+                    typeof requiredGainPercent === "number" &&
+                    requiredGainPercent === 0
                       ? "Already at or above break-even"
                       : "Below break-even"
                   }
@@ -1279,7 +1412,10 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
                   label="Years"
                   value={reinvestmentForm.years}
                   onChange={(value) =>
-                    setReinvestmentForm((current) => ({ ...current, years: value }))
+                    setReinvestmentForm((current) => ({
+                      ...current,
+                      years: value,
+                    }))
                   }
                   min="0"
                   step="1"
@@ -1338,26 +1474,6 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
             </p>
           </div>
         </div>
-
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => setIsDrawerOpen(true)}
-            className="btn btn-outline rounded-full px-6 lg:hidden"
-          >
-            <PanelLeft className="h-4 w-4" />
-            Choose calculator
-          </button>
-          <Link href="/dashboard" className="btn btn-ghost rounded-full px-6">
-            Wishlist
-          </Link>
-          <Link
-            href="/paper-money"
-            className="btn btn-outline rounded-full px-6"
-          >
-            Paper Money
-          </Link>
-        </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(18rem,0.75fr)_minmax(0,1.25fr)] lg:items-start">
@@ -1368,35 +1484,17 @@ export function CalculatorsShell({ firstName }: CalculatorsShellProps) {
           />
         </aside>
 
-        <div className="min-w-0">{renderSelectedCalculator()}</div>
-      </div>
-
-      {isDrawerOpen ? (
-        <div
-          className="fixed inset-0 z-50 bg-neutral/50 backdrop-blur-sm lg:hidden"
-          onClick={() => setIsDrawerOpen(false)}
-        >
-          <div
-            className="absolute inset-y-0 left-0 w-[88vw] max-w-sm p-4"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-3 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setIsDrawerOpen(false)}
-                className="btn btn-ghost btn-circle border border-base-300/60 bg-base-100/85"
-                aria-label="Close calculators drawer"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <CalculatorSidebar
+        <div className="min-w-0 space-y-4">
+          <div className="lg:hidden">
+            <CalculatorBadgeTabs
               selectedCalculator={selectedCalculator}
               onSelect={handleSelectCalculator}
             />
           </div>
+
+          {renderSelectedCalculator()}
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }

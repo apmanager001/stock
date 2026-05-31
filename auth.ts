@@ -25,6 +25,16 @@ export const auth = betterAuth({
     usePlural: true,
     transaction: false,
   }),
+  user: {
+    additionalFields: {
+      admin: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+        input: false,
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
   },

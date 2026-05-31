@@ -5,14 +5,21 @@ import {
   Newspaper,
   ShieldCheck,
   Sparkles,
+  Trophy,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { MoverList } from "@/components/stocks/mover-list";
 import { JsonLd } from "@/components/seo/json-ld";
+import { getPaperPortfolioLeaderboard } from "@/lib/backend/stocks/paper-portfolio";
 import { getHomePageMarketData } from "@/lib/backend/stocks/yahoo";
 import { siteConfig } from "@/lib/config/site";
-import { formatDateTime } from "@/lib/stocks/format";
+import {
+  formatCurrency,
+  formatDateTime,
+  formatPercent,
+  formatSignedCurrency,
+} from "@/lib/stocks/format";
 import { absoluteUrl, createPageMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
@@ -29,12 +36,6 @@ export const metadata: Metadata = createPageMetadata({
     "stock market news",
   ],
 });
-
-const productHighlights = [
-  "Public homepage for daily movers and headlines",
-  "Authenticated Mongo-backed stock wishlist",
-  "Single-stock pages with price charts and recent news",
-] as const;
 
 const homeJsonLd = [
   {
@@ -60,7 +61,10 @@ const homeJsonLd = [
 ];
 
 export default async function Home() {
-  const { gainers, losers, featuredNews } = await getHomePageMarketData();
+  const [{ gainers, losers, featuredNews }, leaderboard] = await Promise.all([
+    getHomePageMarketData(),
+    getPaperPortfolioLeaderboard(),
+  ]);
 
   return (
     <div className="pb-24 pt-6 sm:pt-8 lg:pt-12">
@@ -120,33 +124,6 @@ export default async function Home() {
               Open wishlist
             </Link>
           </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="glass-panel rounded-xl border border-base-300/70 p-4 shadow-lg shadow-primary/5">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/45">
-                Gainers loaded
-              </p>
-              <p className="mt-2 text-lg font-semibold text-base-content">
-                {gainers.length}
-              </p>
-            </div>
-            <div className="glass-panel rounded-xl border border-base-300/70 p-4 shadow-lg shadow-primary/5">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/45">
-                Losers loaded
-              </p>
-              <p className="mt-2 text-lg font-semibold text-base-content">
-                {losers.length}
-              </p>
-            </div>
-            <div className="glass-panel rounded-xl border border-base-300/70 p-4 shadow-lg shadow-primary/5">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/45">
-                News stories
-              </p>
-              <p className="mt-2 text-lg font-semibold text-base-content">
-                {featuredNews.length}
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className="relative">
@@ -159,8 +136,8 @@ export default async function Home() {
                 Daily movers
               </h2>
               <p className="mt-3 leading-7 text-base-content/70">
-                Open the session with a clean read on who is ripping higher and who
-                is under pressure.
+                Open the session with a clean read on who is ripping higher and
+                who is under pressure.
               </p>
             </article>
             <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
@@ -171,8 +148,8 @@ export default async function Home() {
                 Personal wishlist
               </h2>
               <p className="mt-3 leading-7 text-base-content/70">
-                Sign in, save tickers to MongoDB, and come back to the same set of
-                names across sessions.
+                Sign in, save tickers to MongoDB, and come back to the same set
+                of names across sessions.
               </p>
             </article>
             <article className="glass-panel rounded-[1.75rem] border border-base-300/70 p-6 shadow-lg shadow-primary/5">
@@ -188,6 +165,130 @@ export default async function Home() {
               </p>
             </article>
           </section>
+        </div>
+      </section>
+
+      <section id="paper-money-leaderboard" className="section-shell mt-16">
+        <div className="glass-panel rounded-4xl border border-base-300/70 p-6 shadow-lg shadow-primary/5 sm:p-8">
+          <div className="border-b border-base-300/60 pb-8">
+            <div className="badge badge-outline gap-2 rounded-full border-primary/30 bg-base-100/80 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
+              <Trophy className="h-4 w-4" />
+              Paper money leaderboard
+            </div>
+
+            <div className="mt-6 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/42">
+                    Live standings
+                  </p>
+                  <h2 className="mt-2 font-display text-4xl font-semibold text-base-content">
+                    Top paper portfolios right now
+                  </h2>
+                </div>
+
+                <p className="max-w-3xl text-base leading-8 text-base-content/68 sm:text-lg">
+                  Ranked by current portfolio equity, combining live pricing on
+                  open positions with each trader&apos;s remaining cash balance.
+                </p>
+              </div>
+
+              <div className="grid gap-3">
+                <Link
+                  href="/paper-money"
+                  className="btn btn-primary rounded-full px-6 shadow-lg shadow-primary/20"
+                >
+                  Start your portfolio
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/register"
+                  className="btn btn-ghost rounded-full border border-base-300/70 bg-base-100/75 px-6"
+                >
+                  Create account
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            {leaderboard.length === 0 ? (
+              <div className="rounded-[1.6rem] border border-dashed border-base-300/80 bg-base-100/72 p-8 text-sm leading-7 text-base-content/58">
+                No paper portfolios have been funded yet. Open the simulator to
+                set the first benchmark.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {leaderboard.map((entry, index) => {
+                  const rank = index + 1;
+                  const rankClassName =
+                    rank === 1
+                      ? "border-warning/35 bg-warning/12 text-warning"
+                      : rank === 2
+                        ? "border-secondary/35 bg-secondary/12 text-secondary"
+                        : rank === 3
+                          ? "border-accent/35 bg-accent/14 text-accent"
+                          : "border-base-300/70 bg-base-100/82 text-base-content/72";
+
+                  return (
+                    <article
+                      key={entry.authUserId}
+                      className="rounded-[1.6rem] border border-base-300/70 bg-base-100/78 p-4 sm:p-5"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div
+                            className={[
+                              "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-sm font-semibold",
+                              rankClassName,
+                            ].join(" ")}
+                          >
+                            #{rank}
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="truncate text-lg font-semibold text-base-content">
+                              {entry.displayName}
+                            </p>
+                            <p className="mt-1 text-sm text-base-content/58">
+                              {entry.holdingsCount === 0
+                                ? "All cash"
+                                : `${entry.holdingsCount} ${
+                                    entry.holdingsCount === 1
+                                      ? "position"
+                                      : "positions"
+                                  }`}{" "}
+                              · {formatCurrency(entry.cashBalance)} cash
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-left sm:text-right">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42">
+                            Portfolio value
+                          </p>
+                          <p className="mt-2 text-2xl font-semibold text-base-content">
+                            {formatCurrency(entry.totalEquity)}
+                          </p>
+                          <p
+                            className={[
+                              "mt-1 text-sm",
+                              entry.totalReturn >= 0
+                                ? "text-success"
+                                : "text-error",
+                            ].join(" ")}
+                          >
+                            {formatSignedCurrency(entry.totalReturn)} ·{" "}
+                            {formatPercent(entry.totalReturnPercent)}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 

@@ -9,7 +9,6 @@ import {
   CirclePlus,
   ExternalLink,
   Radar,
-  ShieldCheck,
   Sparkles,
   Trash2,
   TrendingUp,
@@ -25,6 +24,7 @@ import type {
 } from "@/lib/stocks/models";
 import {
   formatCurrency,
+  formatDate,
   formatDateTime,
   formatPercent,
 } from "@/lib/stocks/format";
@@ -246,15 +246,10 @@ export function DashboardShell({
                   </h2>
                 </div>
               </div>
-              <div className='max-w-12 text-xs'>
+              <div className="max-w-12 text-xs">
                 <div className="badge badge-primary">
                   {watchlistCards.length}
                 </div>
-                <p className="mt-1 text-xs text-base-content/62">
-                  {watchlistCards[0]
-                    ? formatDateTime(watchlistCards[0].updatedAt)
-                    : "--"}
-                </p>
               </div>
             </div>
 
@@ -274,14 +269,32 @@ export function DashboardShell({
                 {statusMessage}
               </div>
             ) : null}
-            <p className="mt-3 text-sm text-base-content/56">
+            <p className="mt-3 text-xs text-base-content/56">
               Search by ticker or company name and add stock to your wishlist.
             </p>
           </div>
         </div>
-
+        <div className="min-w-0 border border-base-300/60 bg-base-100/70 mt-2 rounded-2xl p-4 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/42">
+            Top mover today
+          </p>
+          <p className="mt-2 truncate text-lg font-semibold text-primary">
+            {topMover ? topMover.symbol : "--"}
+          </p>
+          <p className="mt-1 text-xs text-success font-semibold">
+            {topMover
+              ? formatPercent(topMover.changePercent)
+              : "Add a stock to begin tracking."}
+          </p>
+        </div>
+        <p className="mt-4 text-xs text-base-content/62">
+          Updated:
+          {watchlistCards[0]
+            ? formatDateTime(watchlistCards[0].updatedAt)
+            : "--"}
+        </p>
         {watchlistCards.length === 0 ? (
-          <div className="mt-4 rounded-4xl border border-dashed border-base-300/80 bg-base-100/70 p-10 text-center">
+          <div className="mt-1 rounded-4xl border border-dashed border-base-300/80 bg-base-100/70 p-10 text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-base-content/42">
               No symbols saved yet
             </p>
@@ -294,7 +307,7 @@ export function DashboardShell({
             </p>
           </div>
         ) : (
-          <div className="mt-6 space-y-3 mb-24 lg:mb-0">
+          <div className="mt-1 space-y-3 mb-24 lg:mb-0">
             {watchlist.map((item) => {
               const stock = cardLookup.get(item.symbol) ?? {
                 symbol: item.symbol,
@@ -317,7 +330,7 @@ export function DashboardShell({
                 <article
                   key={item.symbol}
                   className={[
-                    "rounded-3xl border bg-base-100/80 p-4 shadow-lg shadow-primary/5 transition-colors",
+                    "rounded-3xl border bg-base-100/80 p-2 md:p-4 shadow-lg shadow-primary/5 transition-colors",
                     isSelected
                       ? "border-primary/35 bg-primary/6"
                       : "border-base-300/70 hover:border-primary/20",
@@ -329,23 +342,38 @@ export function DashboardShell({
                     className={`block w-full text-left ${isSelected ? "cursor-default" : "cursor-pointer"}`}
                     aria-pressed={isSelected}
                   >
+                    <div className="flex items-center gap-3 mb-2">
+                      <p className="mt-1 truncate text-sm text-base-content/58">
+                        {stock.name}
+                      </p>
+                      {isSelected ? (
+                        <span className="rounded-full border border-primary/30 bg-primary/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                          Selected
+                        </span>
+                      ) : null}
+                    </div>
                     <div className="flex gap-3 flex-row items-start justify-between sm:gap-4">
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 self-center">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="truncate text-base font-semibold text-base-content sm:text-lg">
                             {stock.symbol}
                           </p>
-                          {isSelected ? (
-                            <span className="rounded-full border border-primary/30 bg-primary/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
-                              Selected
-                            </span>
-                          ) : null}
                         </div>
-                        <p className="mt-1 truncate text-sm text-base-content/58">
-                          {stock.name}
-                        </p>
                       </div>
-
+                      <div
+                        className={[
+                          "group flex min-w-0 items-center rounded-2xl text-left transition-colors",
+                        ].join(" ")}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <StockSparkline
+                            symbol={stock.symbol}
+                            points={stock.dayChart}
+                            positive={isPositive}
+                            className="h-11 w-full"
+                          />
+                        </div>
+                      </div>
                       <div className="min-w-0 sm:shrink-0 sm:text-right">
                         <p className="text-sm font-semibold text-base-content sm:text-base">
                           {formatCurrency(stock.price, stock.currency ?? "USD")}
@@ -358,29 +386,20 @@ export function DashboardShell({
                           {formatPercent(stock.changePercent)}
                         </p>
                       </div>
+                      
                     </div>
                   </button>
-
-                  <div className="mt-4 grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectStock(stock.symbol)}
-                      className={[
-                        "group flex min-w-0 items-center rounded-2xl px-2 py-2 text-left transition-colors",
-                        isSelected ? "bg-primary/8" : "hover:bg-base-100/70",
-                      ].join(" ")}
-                      aria-pressed={isSelected}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <StockSparkline
-                          symbol={stock.symbol}
-                          points={stock.dayChart}
-                          positive={isPositive}
-                          className="h-11 w-full"
-                        />
-                      </div>
-                    </button>
-
+                  <div className="min-w-0 mt-3 flex justify-between items-center">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/48">
+                      <span className="truncate">
+                        Added {formatDate(item.addedAt)}
+                      </span>
+                      <span
+                        className={isPositive ? "text-success" : "text-error"}
+                      >
+                        {isPositive ? "Up today" : "Down today"}
+                      </span>
+                    </div>
                     <form
                       action={removeFromWatchlistAction}
                       className="min-w-0"
@@ -395,19 +414,6 @@ export function DashboardShell({
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </form>
-                  </div>
-
-                  <div className="min-w-0 mt-3">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/48">
-                      <span className="truncate">
-                        Added {formatDateTime(item.addedAt)}
-                      </span>
-                      <span
-                        className={isPositive ? "text-success" : "text-error"}
-                      >
-                        {isPositive ? "Up today" : "Down today"}
-                      </span>
-                    </div>
                   </div>
                 </article>
               );
@@ -432,79 +438,6 @@ export function DashboardShell({
           Wishlist
         </button>
       </div>
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-        <article className="rounded-3xl border border-base-300/70 bg-base-100/80 p-4 shadow-lg shadow-primary/5">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-              <UserRound className="h-4 w-4" />
-            </div>
-
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42">
-                Welcome Back
-              </p>
-              <p className="mt-2 text-2xl font-semibold text-base-content">
-                {firstName}
-              </p>
-            </div>
-          </div>
-        </article>
-        <article className="rounded-3xl border border-base-300/70 bg-base-100/80 p-4 shadow-lg shadow-primary/5">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-              <BellRing className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42">
-                Tracked Stocks
-              </p>
-              <p className="mt-2 text-2xl font-semibold text-base-content">
-                {watchlistCards.length}
-              </p>
-            </div>
-          </div>
-        </article>
-
-        <article className="rounded-3xl border border-base-300/70 bg-base-100/80 p-4 shadow-lg shadow-primary/5">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-secondary/12 text-secondary">
-              <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42">
-                Top mover today
-              </p>
-              <p className="mt-2 truncate text-lg font-semibold text-base-content">
-                {topMover ? topMover.symbol : "--"}
-              </p>
-              <p className="mt-1 text-xs text-base-content/62">
-                {topMover
-                  ? formatPercent(topMover.changePercent)
-                  : "Add a stock to begin tracking."}
-              </p>
-            </div>
-          </div>
-        </article>
-
-        <article className="rounded-3xl border border-base-300/70 bg-base-100/80 p-4 shadow-lg shadow-primary/5">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent/14 text-accent">
-              <Radar className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-base-content/42">
-                Last quote sync
-              </p>
-              <p className="mt-2 text-sm font-semibold text-base-content">
-                {watchlistCards[0]
-                  ? formatDateTime(watchlistCards[0].updatedAt)
-                  : "--"}
-              </p>
-            </div>
-          </div>
-        </article>
-      </div>
-
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-start">
         <div className="hidden xl:block">
           {renderWishlistPanel("wishlist-search-desktop")}

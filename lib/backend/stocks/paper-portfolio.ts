@@ -1,5 +1,9 @@
 import "server-only";
 import type { StockChartPoint } from "@/lib/stocks/models";
+import {
+  connectMongoClient,
+  getMongoDatabase,
+} from "@/lib/backend/mongodb/client";
 import { connectMongoose } from "@/lib/backend/mongoose/connection";
 import {
   PaperPortfolioModel,
@@ -61,6 +65,17 @@ export type PaperPortfolioState = {
   hasTransactions: boolean;
 };
 
+export type PaperPortfolioLeaderboardEntry = {
+  authUserId: string;
+  displayName: string;
+  totalEquity: number;
+  investedValue: number;
+  cashBalance: number;
+  totalReturn: number;
+  totalReturnPercent: number;
+  holdingsCount: number;
+};
+
 type ExecutePaperTradeInput = {
   symbol: string;
   side: PaperTradeSide;
@@ -78,6 +93,19 @@ type HoldingAccumulator = {
   shares: number;
   costBasis: number;
   lastPrice: number;
+};
+
+type LeaderboardUserDocument = {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+};
+
+type LeaderboardPortfolioDocument = {
+  authUserId: string;
+  startingCash?: number | null;
+  cashBalance?: number | null;
+  transactions?: PaperTrade[];
 };
 
 function roundMoney(value: number) {
@@ -101,6 +129,72 @@ function toChartPoint(date: Date, value: number): StockChartPoint {
     low: null,
     volume: null,
   };
+}
+
+function calculateCurrentMarketValue(
+  holdings: Iterable<HoldingAccumulator>,
+  currentPriceLookup: Map<string, number>,
+) {
+  return roundMoney(
+    Array.from(holdings).reduce((totalValue, holding) => {
+      const effectivePrice =
+        currentPriceLookup.get(holding.symbol) ?? holding.lastPrice;
+
+      return totalValue + holding.shares * effectivePrice;
+    }, 0),
+  );
+}
+
+function buildPaperPortfolioSummary(
+  startingCash: number,
+  cashBalance: number,
+  holdings: Iterable<HoldingAccumulator>,
+  currentPriceLookup: Map<string, number>,
+): PaperPortfolioSummary {
+  const investedValue = calculateCurrentMarketValue(
+    holdings,
+    currentPriceLookup,
+  );
+  const totalEquity = roundMoney(cashBalance + investedValue);
+  const totalReturn = roundMoney(totalEquity - startingCash);
+  const totalReturnPercent =
+    startingCash > 0
+      ? Number(((totalReturn / startingCash) * 100).toFixed(2))
+      : 0;
+
+  return {
+    startingCash,
+    cashBalance,
+    investedValue,
+    totalEquity,
+    totalReturn,
+    totalReturnPercent,
+  };
+}
+
+function formatPublicLeaderboardName(
+  name: string | null | undefined,
+  email: string | null | undefined,
+  authUserId: string,
+) {
+  const fallbackName = `Trader ${authUserId.slice(0, 6).toUpperCase()}`;
+  const rawName = name?.trim() || email?.split("@")[0]?.trim() || fallbackName;
+
+  if (rawName === fallbackName) {
+    return fallbackName;
+  }
+
+  const segments = rawName
+    .replace(/[._-]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((segment) => segment[0]?.toUpperCase() + segment.slice(1));
+
+  if (segments.length >= 2) {
+    return `${segments[0]} ${segments.at(-1)?.charAt(0) ?? ""}.`;
+  }
+
+  return segments[0] ?? fallbackName;
 }
 
 function sortTradesAscending(trades: PaperTrade[]) {
@@ -219,13 +313,9 @@ function buildChartPoints(
     );
   }
 
-  const currentMarketValue = Array.from(holdings.values()).reduce(
-    (totalValue, holding) => {
-      const effectivePrice =
-        currentPriceLookup.get(holding.symbol) ?? holding.lastPrice;
-      return totalValue + holding.shares * effectivePrice;
-    },
-    0,
+  const currentMarketValue = calculateCurrentMarketValue(
+    holdings.values(),
+    currentPriceLookup,
   );
   const currentEquity = roundMoney(cashBalance + currentMarketValue);
   const now = new Date();
@@ -290,19 +380,12 @@ export async function getUserPaperPortfolio(
       } satisfies PaperPortfolioHolding;
     })
     .sort((left, right) => right.marketValue - left.marketValue);
-
-  const investedValue = roundMoney(
-    holdings.reduce(
-      (totalValue, holding) => totalValue + holding.marketValue,
-      0,
-    ),
+  const summary = buildPaperPortfolioSummary(
+    startingCash,
+    cashBalance,
+    holdingsMap.values(),
+    currentPriceLookup,
   );
-  const totalEquity = roundMoney(cashBalance + investedValue);
-  const totalReturn = roundMoney(totalEquity - startingCash);
-  const totalReturnPercent =
-    startingCash > 0
-      ? Number(((totalReturn / startingCash) * 100).toFixed(2))
-      : 0;
   const transactions = [...sortedTrades].reverse().map(
     (trade) =>
       ({
@@ -317,14 +400,7 @@ export async function getUserPaperPortfolio(
   );
 
   return {
-    summary: {
-      startingCash,
-      cashBalance,
-      investedValue,
-      totalEquity,
-      totalReturn,
-      totalReturnPercent,
-    },
+    summary,
     holdings,
     transactions,
     chartPoints: buildChartPoints(
@@ -338,6 +414,112 @@ export async function getUserPaperPortfolio(
     createdAt: createdAt.toISOString(),
     hasTransactions: transactions.length > 0,
   };
+}
+
+export async function getPaperPortfolioLeaderboard(
+  limit = 10,
+): Promise<PaperPortfolioLeaderboardEntry[]> {
+  await connectMongoose();
+
+  const normalizedLimit = Math.min(Math.max(Math.floor(limit), 1), 25);
+  const portfolios = (await PaperPortfolioModel.find(
+    {},
+    {
+      _id: 0,
+      authUserId: 1,
+      startingCash: 1,
+      cashBalance: 1,
+      transactions: 1,
+    },
+  ).lean()) as LeaderboardPortfolioDocument[];
+
+  if (portfolios.length === 0) {
+    return [];
+  }
+
+  const portfolioSnapshots = portfolios.map((portfolio) => {
+    const startingCash = roundMoney(
+      portfolio.startingCash ?? paperStartingCash,
+    );
+    const cashBalance = roundMoney(portfolio.cashBalance ?? startingCash);
+    const sortedTrades = sortTradesAscending(portfolio.transactions ?? []);
+    const holdingsMap = buildHoldingsMap(sortedTrades);
+
+    return {
+      authUserId: portfolio.authUserId,
+      startingCash,
+      cashBalance,
+      holdingsMap,
+    };
+  });
+
+  const activeSymbols = Array.from(
+    new Set(
+      portfolioSnapshots.flatMap((portfolio) =>
+        Array.from(portfolio.holdingsMap.keys()),
+      ),
+    ),
+  );
+  const quotes =
+    activeSymbols.length > 0 ? await getStockCards(activeSymbols) : [];
+  const currentPriceLookup = new Map(
+    quotes
+      .filter((quote) => typeof quote.price === "number")
+      .map((quote) => [quote.symbol, roundMoney(quote.price ?? 0)]),
+  );
+
+  await connectMongoClient();
+
+  const userIds = portfolioSnapshots.map((portfolio) => portfolio.authUserId);
+  const users = await getMongoDatabase()
+    .collection<LeaderboardUserDocument>("users")
+    .find(
+      { id: { $in: userIds } },
+      {
+        projection: {
+          _id: 0,
+          id: 1,
+          name: 1,
+          email: 1,
+        },
+      },
+    )
+    .toArray();
+  const userLookup = new Map(users.map((user) => [user.id, user]));
+
+  return portfolioSnapshots
+    .map((portfolio) => {
+      const summary = buildPaperPortfolioSummary(
+        portfolio.startingCash,
+        portfolio.cashBalance,
+        portfolio.holdingsMap.values(),
+        currentPriceLookup,
+      );
+      const user = userLookup.get(portfolio.authUserId);
+
+      return {
+        authUserId: portfolio.authUserId,
+        displayName: formatPublicLeaderboardName(
+          user?.name,
+          user?.email,
+          portfolio.authUserId,
+        ),
+        totalEquity: summary.totalEquity,
+        investedValue: summary.investedValue,
+        cashBalance: summary.cashBalance,
+        totalReturn: summary.totalReturn,
+        totalReturnPercent: summary.totalReturnPercent,
+        holdingsCount: portfolio.holdingsMap.size,
+      } satisfies PaperPortfolioLeaderboardEntry;
+    })
+    .sort((left, right) => {
+      if (right.totalEquity !== left.totalEquity) {
+        return right.totalEquity - left.totalEquity;
+      }
+
+      return right.totalReturnPercent - left.totalReturnPercent;
+    })
+    .slice(0, normalizedLimit);
 }
 
 export async function executePaperTrade(

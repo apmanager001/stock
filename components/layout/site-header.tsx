@@ -7,6 +7,7 @@ import {
   Calculator,
   Menu,
   Orbit,
+  Settings2,
   Sparkles,
   UserRound,
   X,
@@ -73,10 +74,10 @@ export function SiteHeader() {
             </nav>
 
             <div className="hidden items-center gap-3 md:flex">
-              <div className="hidden items-center gap-2 rounded-full border border-base-300/60 bg-base-100/80 px-3 py-2 text-xs uppercase tracking-[0.2em] text-base-content/50 xl:flex">
+              {/* <div className="hidden items-center gap-2 rounded-full border border-base-300/60 bg-base-100/80 px-3 py-2 text-xs uppercase tracking-[0.2em] text-base-content/50 xl:flex">
                 <Sparkles className="h-4 w-4 text-accent-content" />
                 Live market view
-              </div>
+              </div> */}
 
               {isPending ? null : isAuthenticated ? (
                 <div className="dropdown dropdown-end">
@@ -118,6 +119,15 @@ export function SiteHeader() {
                       >
                         <Banknote className="h-4 w-4 text-accent-content" />
                         Paper Money
+                      </Link>
+                    </li>
+                    <li className="hover:bg-primary/40 rounded-xl">
+                      <Link
+                        href="/settings"
+                        className="rounded-xl px-3 py-3 font-extrabold hover:text-white"
+                      >
+                        <Settings2 className="h-4 w-4 text-accent-content" />
+                        Settings
                       </Link>
                     </li>
                     <li>
@@ -205,6 +215,13 @@ export function SiteHeader() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Paper Money
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="rounded-2xl bg-base-100/80 px-4 py-3 text-sm font-medium text-base-content/72 transition-colors hover:bg-base-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Settings
                     </Link>
                     <SignOutButton className="w-full" />
                   </div>

@@ -90,7 +90,7 @@ export default async function PaperMoneyPage({
             </div>
             <div className="space-y-3">
               <h1 className="font-display text-4xl font-semibold tracking-tight text-base-content sm:text-5xl">
-                Trade ideas without risking cash.
+                Make trades without risking cash.
               </h1>
               <p className="max-w-3xl text-base leading-8 text-base-content/68 sm:text-lg">
                 {firstName}, you start with{" "}
@@ -100,21 +100,6 @@ export default async function PaperMoneyPage({
               </p>
             </div>
           </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link href="/dashboard" className="btn btn-ghost rounded-full px-6">
-              Wishlist
-            </Link>
-            <form action={resetPaperPortfolioAction}>
-              <button
-                type="submit"
-                className="btn btn-outline rounded-full px-6 text-error hover:border-error/40 hover:bg-error/10"
-              >
-                <RefreshCcw className="h-4 w-4" />
-                Reset portfolio
-              </button>
-            </form>
-          </div>
         </div>
 
         {statusMessage ? (
@@ -123,7 +108,7 @@ export default async function PaperMoneyPage({
           </div>
         ) : null}
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
           <article className="glass-panel rounded-3xl border border-base-300/70 p-5 shadow-lg shadow-primary/5">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12 text-primary">
@@ -209,8 +194,16 @@ export default async function PaperMoneyPage({
                   <p className="mt-1">Trades {portfolio.transactions.length}</p>
                 </div>
               </div>
-
-              <div className="mt-6">
+              <form action={resetPaperPortfolioAction} className='flex justify-end'>
+                <button
+                  type="submit"
+                  className="btn btn-outline btn-xs rounded-full w-32 text-error hover:border-error/40 hover:bg-error/10"
+                >
+                  <RefreshCcw className="h-4 w-4" />
+                  Reset portfolio
+                </button>
+              </form>
+              <div className="mt-4">
                 <PaperPortfolioChart
                   points={portfolio.chartPoints}
                   positive={portfolio.summary.totalReturn >= 0}
@@ -229,7 +222,6 @@ export default async function PaperMoneyPage({
                   </h2>
                 </div>
               </div>
-
               {portfolio.holdings.length === 0 ? (
                 <div className="mt-6 rounded-3xl border border-dashed border-base-300/80 bg-base-100/70 p-8 text-sm leading-7 text-base-content/58">
                   No open positions yet. Use the trade ticket to buy your first
