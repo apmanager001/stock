@@ -32,7 +32,9 @@ export function MoverSlider({ tabs, children }: MoverSliderProps) {
         return;
       }
 
-      const childElements = Array.from(currentContainer.children) as HTMLElement[];
+      const childElements = Array.from(
+        currentContainer.children,
+      ) as HTMLElement[];
 
       if (childElements.length === 0) {
         return;
@@ -55,7 +57,9 @@ export function MoverSlider({ tabs, children }: MoverSliderProps) {
     }
 
     updateSelectedIndex();
-    container.addEventListener("scroll", updateSelectedIndex, { passive: true });
+    container.addEventListener("scroll", updateSelectedIndex, {
+      passive: true,
+    });
     window.addEventListener("resize", updateSelectedIndex);
 
     return () => {

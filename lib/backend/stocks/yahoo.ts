@@ -4,10 +4,7 @@ import type { ChartResultArrayQuote } from "yahoo-finance2/modules/chart";
 import type { Quote } from "yahoo-finance2/modules/quote";
 import type { ScreenerQuote } from "yahoo-finance2/modules/screener";
 import type { SearchNews, SearchResult } from "yahoo-finance2/modules/search";
-import {
-  clearCachedValues,
-  getCachedValue,
-} from "@/lib/backend/cache/memory";
+import { clearCachedValues, getCachedValue } from "@/lib/backend/cache/memory";
 import { getHomePageTopCompanySymbols } from "@/lib/backend/stocks/top-companies";
 import {
   stockChartRanges,
@@ -365,8 +362,7 @@ export async function getHomePageMarketData(): Promise<HomePageMarketData> {
       ]);
 
     return {
-      gainers:
-        gainersResult.status === "fulfilled" ? gainersResult.value : [],
+      gainers: gainersResult.status === "fulfilled" ? gainersResult.value : [],
       losers: losersResult.status === "fulfilled" ? losersResult.value : [],
       topCompanies:
         topCompaniesResult.status === "fulfilled"
@@ -493,8 +489,7 @@ export async function getStockDetail(
           trailingPE: quote.trailingPE ?? null,
           forwardPE: quote.forwardPE ?? null,
           dividendYield:
-            "dividendYield" in quote &&
-            typeof quote.dividendYield === "number"
+            "dividendYield" in quote && typeof quote.dividendYield === "number"
               ? quote.dividendYield
               : null,
           updatedAt: toIsoString(quote.regularMarketTime),

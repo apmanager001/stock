@@ -23,7 +23,11 @@ export function NewsArticleCard({
           src={article.thumbnailUrl}
           alt=""
           fill
-          sizes={compact ? "(max-width: 1280px) 100vw, 720px" : "(max-width: 1280px) 100vw, 33vw"}
+          sizes={
+            compact
+              ? "(max-width: 1280px) 100vw, 720px"
+              : "(max-width: 1280px) 100vw, 33vw"
+          }
           className="object-cover"
         />
       ) : (
