@@ -3,17 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import {
-  BellRing,
-  UserRound,
-  CirclePlus,
-  ExternalLink,
-  Radar,
-  Sparkles,
-  Trash2,
-  TrendingUp,
-  X,
-} from "lucide-react";
+import { CirclePlus, ExternalLink, Sparkles, Trash2, X } from "lucide-react";
+import { WishlistDeleteModal } from "@/components/dashboard/wishlist-delete-modal";
 import { StockDetailPanel } from "@/components/stocks/stock-detail-panel";
 import { StockSearchInput } from "@/components/stocks/stock-search-input";
 import { StockSparkline } from "@/components/stocks/stock-sparkline";
@@ -38,7 +29,6 @@ type DashboardWatchlistItem = {
 type DashboardFormAction = (formData: FormData) => void | Promise<void>;
 
 type DashboardShellProps = {
-  firstName: string;
   watchlist: DashboardWatchlistItem[];
   watchlistCards: StockListCard[];
   initialSelectedStockSymbol?: string;
@@ -54,7 +44,6 @@ type StockDetailResponse = {
 };
 
 export function DashboardShell({
-  firstName,
   watchlist,
   watchlistCards,
   initialSelectedStockSymbol,
@@ -72,6 +61,10 @@ export function DashboardShell({
     initialSelectedStockDetail?.chartRange ?? initialSelectedRange,
   );
   const [isWishlistDrawerOpen, setIsWishlistDrawerOpen] = useState(false);
+  const [stockPendingRemoval, setStockPendingRemoval] = useState<{
+    symbol: string;
+    name: string;
+  } | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [detailCache, setDetailCache] = useState<Record<string, StockDetail>>(
@@ -227,6 +220,14 @@ export function DashboardShell({
     updateDashboardUrl(selectedStockSymbol, range);
   }
 
+  function handleRequestRemoveStock(stock: { symbol: string; name: string }) {
+    setStockPendingRemoval(stock);
+  }
+
+  function handleCloseRemoveModal() {
+    setStockPendingRemoval(null);
+  }
+
   function renderWishlistPanel(searchInputId: string) {
     return (
       <div className="glass-panel min-w-0 rounded-4xl border border-base-300/70 p-6 shadow-lg shadow-primary/5 sm:p-8">
@@ -247,8 +248,8 @@ export function DashboardShell({
                 </div>
               </div>
               <div className="max-w-12 text-xs">
-                <div className="badge badge-primary">
-                  {watchlistCards.length}
+                <div className="badge badge-primary min-w-18">
+                  {watchlistCards.length} / 25
                 </div>
               </div>
             </div>
@@ -386,7 +387,6 @@ export function DashboardShell({
                           {formatPercent(stock.changePercent)}
                         </p>
                       </div>
-                      
                     </div>
                   </button>
                   <div className="min-w-0 mt-3 flex justify-between items-center">
@@ -400,20 +400,20 @@ export function DashboardShell({
                         {isPositive ? "Up today" : "Down today"}
                       </span>
                     </div>
-                    <form
-                      action={removeFromWatchlistAction}
-                      className="min-w-0"
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleRequestRemoveStock({
+                          symbol: item.symbol,
+                          name: stock.name,
+                        })
+                      }
+                      className="btn btn-ghost h-full max-w-12 w-full justify-center rounded-2xl text-error hover:bg-error/10"
+                      aria-label={`Remove ${item.symbol} from wishlist`}
+                      title={`Remove ${item.symbol}`}
                     >
-                      <input type="hidden" name="symbol" value={item.symbol} />
-                      <button
-                        type="submit"
-                        className="btn btn-ghost h-full w-full justify-center rounded-2xl text-error hover:bg-error/10"
-                        aria-label={`Remove ${item.symbol} from wishlist`}
-                        title={`Remove ${item.symbol}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </form>
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </article>
               );
@@ -544,6 +544,12 @@ export function DashboardShell({
           </div>
         </div>
       </div>
+
+      <WishlistDeleteModal
+        stock={stockPendingRemoval}
+        onClose={handleCloseRemoveModal}
+        removeFromWatchlistAction={removeFromWatchlistAction}
+      />
     </div>
   );
 }

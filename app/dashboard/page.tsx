@@ -62,7 +62,6 @@ export default async function DashboardPage({
   const cards = await getStockCardsWithDayCharts(
     watchlist.map((item) => item.symbol),
   );
-  const firstName = session.user.name?.split(" ")[0] ?? session.user.email;
   const status = getSearchParam(params, "status");
   const symbol = getSearchParam(params, "symbol");
   const selectedStockParam = getSearchParam(params, "stock")?.toUpperCase();
@@ -94,7 +93,6 @@ export default async function DashboardPage({
   return (
     <section className="section-shell py-8 lg:py-14">
       <DashboardShell
-        firstName={firstName}
         watchlist={watchlist}
         watchlistCards={cards}
         initialSelectedStockSymbol={selectedStockSymbol}

@@ -5,6 +5,11 @@ import type { Quote } from "yahoo-finance2/modules/quote";
 import type { ScreenerQuote } from "yahoo-finance2/modules/screener";
 import type { SearchNews, SearchResult } from "yahoo-finance2/modules/search";
 import {
+  clearCachedValues,
+  getCachedValue,
+} from "@/lib/backend/cache/memory";
+import { getHomePageTopCompanySymbols } from "@/lib/backend/stocks/top-companies";
+import {
   stockChartRanges,
   type HomePageMarketData,
   type StockChartPoint,
@@ -21,6 +26,17 @@ const yahooFinance = new YahooFinance();
 
 const defaultRegion = "US";
 const defaultLanguage = "en-US";
+const marketTimeZone = "America/New_York";
+const openMarketYahooCacheTtlMs = 60_000;
+const closedMarketYahooCacheTtlMs = 6 * 60 * 60 * 1000;
+const stockSearchCacheTtlMs = 30_000;
+const marketClockFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: marketTimeZone,
+  weekday: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
 export { stockChartRanges };
 export type {
   HomePageMarketData,
@@ -50,6 +66,61 @@ export class StockNotFoundError extends Error {
 
 function normalizeStockSymbol(rawSymbol: string) {
   return rawSymbol.trim().toUpperCase();
+}
+
+function getMarketClockSnapshot(value = new Date()) {
+  const parts = marketClockFormatter.formatToParts(value);
+  const weekday = parts.find((part) => part.type === "weekday")?.value;
+  const hour = Number(parts.find((part) => part.type === "hour")?.value);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value);
+
+  return {
+    weekday,
+    hour: Number.isFinite(hour) ? hour : 0,
+    minute: Number.isFinite(minute) ? minute : 0,
+  };
+}
+
+function isRegularMarketOpen(value = new Date()) {
+  const { weekday, hour, minute } = getMarketClockSnapshot(value);
+
+  if (!weekday || weekday === "Sat" || weekday === "Sun") {
+    return false;
+  }
+
+  const minutesSinceMidnight = hour * 60 + minute;
+
+  return minutesSinceMidnight >= 9 * 60 + 30 && minutesSinceMidnight < 16 * 60;
+}
+
+function getYahooCacheTtlMs() {
+  return isRegularMarketOpen()
+    ? openMarketYahooCacheTtlMs
+    : closedMarketYahooCacheTtlMs;
+}
+
+function getYahooCacheKey(scope: string, key: string) {
+  const marketPhase = isRegularMarketOpen() ? "open" : "closed";
+  return `${scope}:${marketPhase}:${key}`;
+}
+
+async function getCachedYahooValue<T>(
+  scope: string,
+  key: string,
+  loader: () => Promise<T>,
+) {
+  return getCachedValue({
+    cacheName: "yahoo-finance",
+    key: getYahooCacheKey(scope, key),
+    ttlMs: getYahooCacheTtlMs(),
+    loader,
+  });
+}
+
+export function clearHomePageMarketDataCache() {
+  clearCachedValues("yahoo-finance", (key) =>
+    key.startsWith("home-page-market:"),
+  );
 }
 
 function subtractDays(days: number) {
@@ -117,6 +188,94 @@ function mapChartPoint(point: ChartResultArrayQuote): StockChartPoint | null {
   };
 }
 
+function mapChartPoints(quotes: ChartResultArrayQuote[]) {
+  return quotes
+    .map(mapChartPoint)
+    .filter((point): point is StockChartPoint => point !== null);
+}
+
+function getTradingDayKey(date: string) {
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate.toISOString().slice(0, 10);
+}
+
+function getMostRecentTradingSessionPoints(points: StockChartPoint[]) {
+  const groupedPoints = new Map<string, StockChartPoint[]>();
+
+  for (const point of points) {
+    const dayKey = getTradingDayKey(point.date);
+
+    if (!dayKey) {
+      continue;
+    }
+
+    const dayPoints = groupedPoints.get(dayKey) ?? [];
+    dayPoints.push(point);
+    groupedPoints.set(dayKey, dayPoints);
+  }
+
+  const sortedDays = Array.from(groupedPoints.keys()).sort();
+
+  for (let index = sortedDays.length - 1; index >= 0; index -= 1) {
+    const dayPoints = groupedPoints.get(sortedDays[index]) ?? [];
+
+    if (dayPoints.length >= 2) {
+      return dayPoints;
+    }
+  }
+
+  return points;
+}
+
+async function getIntradaySessionChart(symbol: string) {
+  return getCachedYahooValue("intraday-chart", symbol, async () => {
+    const primaryChart = await yahooFinance.chart(symbol, {
+      period1: subtractDays(1),
+      interval: "5m",
+      return: "array",
+    });
+
+    const primaryPoints = mapChartPoints(primaryChart.quotes);
+
+    if (primaryPoints.length >= 2) {
+      return primaryPoints;
+    }
+
+    const fallbackChart = await yahooFinance.chart(symbol, {
+      period1: subtractDays(7),
+      interval: "5m",
+      return: "array",
+    });
+
+    return getMostRecentTradingSessionPoints(
+      mapChartPoints(fallbackChart.quotes),
+    );
+  });
+}
+
+async function getChartPointsForRange(symbol: string, range: StockChartRange) {
+  if (range === "1d") {
+    return getIntradaySessionChart(symbol);
+  }
+
+  const selectedRange = stockChartRanges[range] ?? stockChartRanges["3mo"];
+
+  return getCachedYahooValue("range-chart", `${symbol}:${range}`, async () => {
+    const chart = await yahooFinance.chart(symbol, {
+      period1: subtractDays(selectedRange.lookbackDays),
+      interval: selectedRange.interval,
+      return: "array",
+    });
+
+    return mapChartPoints(chart.quotes);
+  });
+}
+
 function isSupportedSearchQuote(
   value: SearchQuoteResult,
 ): value is SupportedSearchQuote {
@@ -139,6 +298,15 @@ function mapSearchQuote(quote: SupportedSearchQuote): StockSearchResult {
   };
 }
 
+async function getCachedQuote(symbol: string) {
+  return getCachedYahooValue("quote", symbol, () =>
+    yahooFinance.quote(symbol, {
+      region: defaultRegion,
+      lang: defaultLanguage,
+    }),
+  );
+}
+
 async function getScreenedStocks(
   screenId: "day_gainers" | "day_losers",
   count: number,
@@ -155,15 +323,7 @@ async function getScreenedStocks(
 
 async function getIntradayChart(symbol: string) {
   try {
-    const chart = await yahooFinance.chart(symbol, {
-      period1: subtractDays(1),
-      interval: "5m",
-      return: "array",
-    });
-
-    return chart.quotes
-      .map(mapChartPoint)
-      .filter((point): point is StockChartPoint => point !== null);
+    return await getIntradaySessionChart(symbol);
   } catch {
     return [];
   }
@@ -188,27 +348,36 @@ export async function getStockCardsWithDayCharts(symbols: string[]) {
 }
 
 export async function getHomePageMarketData(): Promise<HomePageMarketData> {
-  const [gainersResult, losersResult, newsResult] = await Promise.allSettled([
-    getScreenedStocks("day_gainers", 6).then(attachDayCharts),
-    getScreenedStocks("day_losers", 6).then(attachDayCharts),
-    yahooFinance.search("stock market", {
-      quotesCount: 0,
-      newsCount: 6,
-      enableCb: false,
-      enableNavLinks: false,
-      region: defaultRegion,
-      lang: defaultLanguage,
-    }),
-  ]);
+  return getCachedYahooValue("home-page-market", "default", async () => {
+    const [gainersResult, losersResult, topCompaniesResult, newsResult] =
+      await Promise.allSettled([
+        getScreenedStocks("day_gainers", 6).then(attachDayCharts),
+        getScreenedStocks("day_losers", 6).then(attachDayCharts),
+        getHomePageTopCompanySymbols().then(getStockCardsWithDayCharts),
+        yahooFinance.search("stock market", {
+          quotesCount: 0,
+          newsCount: 6,
+          enableCb: false,
+          enableNavLinks: false,
+          region: defaultRegion,
+          lang: defaultLanguage,
+        }),
+      ]);
 
-  return {
-    gainers: gainersResult.status === "fulfilled" ? gainersResult.value : [],
-    losers: losersResult.status === "fulfilled" ? losersResult.value : [],
-    featuredNews:
-      newsResult.status === "fulfilled"
-        ? newsResult.value.news.map(mapArticle)
-        : [],
-  };
+    return {
+      gainers:
+        gainersResult.status === "fulfilled" ? gainersResult.value : [],
+      losers: losersResult.status === "fulfilled" ? losersResult.value : [],
+      topCompanies:
+        topCompaniesResult.status === "fulfilled"
+          ? topCompaniesResult.value
+          : [],
+      featuredNews:
+        newsResult.status === "fulfilled"
+          ? newsResult.value.news.map(mapArticle)
+          : [],
+    };
+  });
 }
 
 export async function searchStocks(query: string, limit = 6) {
@@ -218,14 +387,20 @@ export async function searchStocks(query: string, limit = 6) {
     return [];
   }
 
-  const result = await yahooFinance.search(normalizedQuery, {
-    quotesCount: limit,
-    newsCount: 0,
-    enableCb: false,
-    enableNavLinks: false,
-    enableFuzzyQuery: true,
-    region: defaultRegion,
-    lang: defaultLanguage,
+  const result = await getCachedValue({
+    cacheName: "yahoo-search",
+    key: `${normalizedQuery}:${limit}`,
+    ttlMs: stockSearchCacheTtlMs,
+    loader: () =>
+      yahooFinance.search(normalizedQuery, {
+        quotesCount: limit,
+        newsCount: 0,
+        enableCb: false,
+        enableNavLinks: false,
+        enableFuzzyQuery: true,
+        region: defaultRegion,
+        lang: defaultLanguage,
+      }),
   });
 
   return result.quotes
@@ -257,12 +432,7 @@ export async function getStockCards(symbols: string[]) {
   }
 
   const results = await Promise.allSettled(
-    normalizedSymbols.map((symbol) =>
-      yahooFinance.quote(symbol, {
-        region: defaultRegion,
-        lang: defaultLanguage,
-      }),
-    ),
+    normalizedSymbols.map((symbol) => getCachedQuote(symbol)),
   );
 
   return results
@@ -280,77 +450,73 @@ export async function getStockDetail(
   const normalizedSymbol = normalizeStockSymbol(symbol);
   const selectedRange = stockChartRanges[range] ?? stockChartRanges["3mo"];
 
-  try {
-    const [quote, chart, searchResult] = await Promise.all([
-      yahooFinance.quote(normalizedSymbol, {
-        region: defaultRegion,
-        lang: defaultLanguage,
-      }),
-      yahooFinance.chart(normalizedSymbol, {
-        period1: subtractDays(selectedRange.lookbackDays),
-        interval: selectedRange.interval,
-        return: "array",
-      }),
-      yahooFinance.search(normalizedSymbol, {
-        quotesCount: 4,
-        newsCount: 8,
-        enableCb: false,
-        enableNavLinks: false,
-        region: defaultRegion,
-        lang: defaultLanguage,
-      }),
-    ]);
+  return getCachedYahooValue(
+    "stock-detail",
+    `${normalizedSymbol}:${range}`,
+    async () => {
+      try {
+        const [quote, chartPoints, searchResult] = await Promise.all([
+          getCachedQuote(normalizedSymbol),
+          getChartPointsForRange(normalizedSymbol, range),
+          yahooFinance.search(normalizedSymbol, {
+            quotesCount: 4,
+            newsCount: 8,
+            enableCb: false,
+            enableNavLinks: false,
+            region: defaultRegion,
+            lang: defaultLanguage,
+          }),
+        ]);
 
-    const chartPoints = chart.quotes
-      .map(mapChartPoint)
-      .filter((point): point is StockChartPoint => point !== null);
+        if (!quote.regularMarketPrice && chartPoints.length === 0) {
+          throw new StockNotFoundError(normalizedSymbol);
+        }
 
-    if (!quote.regularMarketPrice && chartPoints.length === 0) {
-      throw new StockNotFoundError(normalizedSymbol);
-    }
+        return {
+          symbol: quote.symbol,
+          name: getDisplayName(quote),
+          exchange: quote.fullExchangeName ?? quote.exchange ?? null,
+          currency: quote.currency ?? null,
+          marketState: quote.marketState ?? null,
+          price: quote.regularMarketPrice ?? null,
+          change: quote.regularMarketChange ?? null,
+          changePercent: quote.regularMarketChangePercent ?? null,
+          previousClose: quote.regularMarketPreviousClose ?? null,
+          open: quote.regularMarketOpen ?? null,
+          dayHigh: quote.regularMarketDayHigh ?? quote.dayHigh ?? null,
+          dayLow: quote.regularMarketDayLow ?? quote.dayLow ?? null,
+          volume: quote.regularMarketVolume ?? quote.volume ?? null,
+          averageVolume: quote.averageDailyVolume3Month ?? null,
+          marketCap: quote.marketCap ?? null,
+          fiftyTwoWeekHigh: quote.fiftyTwoWeekHigh ?? null,
+          fiftyTwoWeekLow: quote.fiftyTwoWeekLow ?? null,
+          trailingPE: quote.trailingPE ?? null,
+          forwardPE: quote.forwardPE ?? null,
+          dividendYield:
+            "dividendYield" in quote &&
+            typeof quote.dividendYield === "number"
+              ? quote.dividendYield
+              : null,
+          updatedAt: toIsoString(quote.regularMarketTime),
+          chartRange: range,
+          chartInterval: selectedRange.interval,
+          chartPoints,
+          news: searchResult.news.map(mapArticle),
+        };
+      } catch (error) {
+        if (error instanceof StockNotFoundError) {
+          throw error;
+        }
 
-    return {
-      symbol: quote.symbol,
-      name: getDisplayName(quote),
-      exchange: quote.fullExchangeName ?? quote.exchange ?? null,
-      currency: quote.currency ?? null,
-      marketState: quote.marketState ?? null,
-      price: quote.regularMarketPrice ?? null,
-      change: quote.regularMarketChange ?? null,
-      changePercent: quote.regularMarketChangePercent ?? null,
-      previousClose: quote.regularMarketPreviousClose ?? null,
-      open: quote.regularMarketOpen ?? null,
-      dayHigh: quote.regularMarketDayHigh ?? quote.dayHigh ?? null,
-      dayLow: quote.regularMarketDayLow ?? quote.dayLow ?? null,
-      volume: quote.regularMarketVolume ?? quote.volume ?? null,
-      averageVolume: quote.averageDailyVolume3Month ?? null,
-      marketCap: quote.marketCap ?? null,
-      fiftyTwoWeekHigh: quote.fiftyTwoWeekHigh ?? null,
-      fiftyTwoWeekLow: quote.fiftyTwoWeekLow ?? null,
-      trailingPE: quote.trailingPE ?? null,
-      forwardPE: quote.forwardPE ?? null,
-      dividendYield:
-        "dividendYield" in quote && typeof quote.dividendYield === "number"
-          ? quote.dividendYield
-          : null,
-      updatedAt: toIsoString(quote.regularMarketTime),
-      chartRange: range,
-      chartInterval: selectedRange.interval,
-      chartPoints,
-      news: searchResult.news.map(mapArticle),
-    };
-  } catch (error) {
-    if (error instanceof StockNotFoundError) {
-      throw error;
-    }
+        if (
+          error instanceof Error &&
+          /no data|not found|symbol/i.test(error.message)
+        ) {
+          throw new StockNotFoundError(normalizedSymbol);
+        }
 
-    if (
-      error instanceof Error &&
-      /no data|not found|symbol/i.test(error.message)
-    ) {
-      throw new StockNotFoundError(normalizedSymbol);
-    }
-
-    throw error;
-  }
+        throw error;
+      }
+    },
+  );
 }

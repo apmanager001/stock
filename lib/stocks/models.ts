@@ -1,4 +1,9 @@
 export const stockChartRanges = {
+  "1d": {
+    label: "1D",
+    lookbackDays: 1,
+    interval: "5m",
+  },
   "5d": {
     label: "5D",
     lookbackDays: 5,
@@ -109,5 +114,6 @@ export type StockDetail = {
 export type HomePageMarketData = {
   gainers: StockMover[];
   losers: StockMover[];
+  topCompanies: StockMover[];
   featuredNews: StockNewsArticle[];
 };

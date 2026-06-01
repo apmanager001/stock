@@ -3,13 +3,12 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useState } from "react";
 import type { StockChartPoint } from "@/lib/stocks/models";
-import { formatCurrency } from "@/lib/stocks/format";
+import { formatCurrency, formatPercent } from "@/lib/stocks/format";
 
 type PriceChartProps = {
   symbol: string;
   currency: string;
   points: StockChartPoint[];
-  positive: boolean;
 };
 
 const chartWidth = 760;
@@ -34,12 +33,7 @@ const longRangeHoverDateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export function PriceChart({
-  symbol,
-  currency,
-  points,
-  positive,
-}: PriceChartProps) {
+export function PriceChart({ symbol, currency, points }: PriceChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   if (points.length < 2) {
@@ -56,7 +50,6 @@ export function PriceChart({
   const spread = maximum - minimum || 1;
   const usableWidth = chartWidth - chartPadding * 2;
   const usableHeight = chartHeight - chartPadding * 2;
-  const stroke = positive ? "var(--color-success)" : "var(--color-error)";
   const fillId = `chart-fill-${symbol.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
   const coordinates = points.map((point, index) => {
@@ -79,10 +72,21 @@ export function PriceChart({
 
   const firstCoordinate = coordinates[0];
   const lastCoordinate = coordinates.at(-1);
+  const firstPoint = points[0];
   const latestPoint = points.at(-1) ?? points[0];
   const selectedIndex = hoveredIndex ?? points.length - 1;
   const selectedPoint = points[selectedIndex] ?? latestPoint;
   const selectedCoordinate = coordinates[selectedIndex] ?? lastCoordinate;
+  const rangeChange = latestPoint.close - firstPoint.close;
+  const rangeChangePercent =
+    firstPoint.close === 0 ? null : (rangeChange / firstPoint.close) * 100;
+  const isRangePositive = rangeChange > 0;
+  const isRangeNegative = rangeChange < 0;
+  const stroke = isRangePositive
+    ? "var(--color-success)"
+    : isRangeNegative
+      ? "var(--color-error)"
+      : "color-mix(in oklab, var(--color-base-content) 28%, transparent)";
   const isIntradayRange =
     new Date(latestPoint.date).getTime() - new Date(points[0].date).getTime() <=
     1000 * 60 * 60 * 48;
@@ -96,6 +100,17 @@ export function PriceChart({
   const areaPath = lastCoordinate
     ? `${linePath} L${lastCoordinate.x.toFixed(2)} ${(chartHeight - chartPadding).toFixed(2)} L${firstCoordinate.x.toFixed(2)} ${(chartHeight - chartPadding).toFixed(2)} Z`
     : linePath;
+  const rangeChangeClassName = isRangePositive
+    ? "text-success"
+    : isRangeNegative
+      ? "text-error"
+      : "text-base-content/56";
+  const rangeChangeLabel =
+    rangeChangePercent === null
+      ? "--"
+      : rangeChangePercent === 0
+        ? "0.00%"
+        : formatPercent(rangeChangePercent);
 
   function updateHoveredPoint(event: ReactPointerEvent<SVGSVGElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -132,9 +147,18 @@ export function PriceChart({
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/42">
             {hoveredIndex === null ? "Latest close" : "Hovered price"}
           </p>
-          <p className="mt-2 text-lg font-semibold text-base-content">
-            {formatCurrency(selectedPoint.close, currency)}
-          </p>
+          <div className=' flex items-center justify-end gap-2'>
+            <p className="mt-2 text-lg font-semibold text-base-content">
+              {formatCurrency(selectedPoint.close, currency)}
+            </p>
+            {hoveredIndex === null ? (
+              <p
+                className={`mt-2 text-sm font-semibold ${rangeChangeClassName}`}
+              >
+                {rangeChangeLabel}
+              </p>
+            ) : null}
+          </div>
           <p className="mt-2 text-xs text-base-content/56">
             {selectedDateLabel}
           </p>

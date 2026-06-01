@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
+  Building2,
   Newspaper,
   ShieldCheck,
   Sparkles,
@@ -10,13 +11,14 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { MoverList } from "@/components/stocks/mover-list";
+import { NewsArticleCard } from "@/components/stocks/news-article-card";
+import { MoverSlider } from "@/components/stocks/mover-slider";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getPaperPortfolioLeaderboard } from "@/lib/backend/stocks/paper-portfolio";
 import { getHomePageMarketData } from "@/lib/backend/stocks/yahoo";
 import { siteConfig } from "@/lib/config/site";
 import {
   formatCurrency,
-  formatDateTime,
   formatPercent,
   formatSignedCurrency,
 } from "@/lib/stocks/format";
@@ -61,35 +63,68 @@ const homeJsonLd = [
 ];
 
 export default async function Home() {
-  const [{ gainers, losers, featuredNews }, leaderboard] = await Promise.all([
-    getHomePageMarketData(),
-    getPaperPortfolioLeaderboard(),
-  ]);
+  const [{ gainers, losers, topCompanies, featuredNews }, leaderboard] =
+    await Promise.all([
+      getHomePageMarketData(),
+      getPaperPortfolioLeaderboard(),
+    ]);
+  const moverSections = [
+    {
+      id: "gainers",
+      label: "Top gainers",
+      eyebrow: "Market board",
+      title: "Top gainers",
+      icon: <TrendingUp className="h-5 w-5" />,
+      iconClassName: "bg-success/12 text-success",
+      stocks: gainers,
+      emptyMessage: "Yahoo Finance did not return gainers right now.",
+    },
+    {
+      id: "losers",
+      label: "Top losers",
+      eyebrow: "Market board",
+      title: "Top losers",
+      icon: <TrendingDown className="h-5 w-5" />,
+      iconClassName: "bg-error/12 text-error",
+      stocks: losers,
+      emptyMessage: "Yahoo Finance did not return losers right now.",
+    },
+    {
+      id: "top-companies",
+      label: "Top companies",
+      eyebrow: "Admin picks",
+      title: "Top companies",
+      icon: <Building2 className="h-5 w-5" />,
+      iconClassName: "bg-secondary/12 text-secondary",
+      itemLabel: "Track",
+      stocks: topCompanies,
+      emptyMessage: "No homepage companies are configured right now.",
+    },
+  ];
 
   return (
     <div className="pb-24 pt-6 sm:pt-8 lg:pt-12">
       <JsonLd data={homeJsonLd} />
-      <section
-        id="movers"
-        className="section-shell mb-4 grid gap-8 lg:grid-cols-2"
-      >
-        <MoverList
-          eyebrow="Market board"
-          title="Top gainers"
-          icon={<TrendingUp className="h-5 w-5" />}
-          iconClassName="bg-success/12 text-success"
-          stocks={gainers}
-          emptyMessage="Yahoo Finance did not return gainers right now."
-        />
-
-        <MoverList
-          eyebrow="Market board"
-          title="Top losers"
-          icon={<TrendingDown className="h-5 w-5" />}
-          iconClassName="bg-error/12 text-error"
-          stocks={losers}
-          emptyMessage="Yahoo Finance did not return losers right now."
-        />
+      <section id="movers" className="section-shell mb-4">
+        <MoverSlider
+          tabs={moverSections.map((section) => ({
+            id: section.id,
+            label: section.label,
+          }))}
+        >
+          {moverSections.map((section) => (
+            <MoverList
+              key={section.id}
+              eyebrow={section.eyebrow}
+              title={section.title}
+              icon={section.icon}
+              iconClassName={section.iconClassName}
+              itemLabel={section.itemLabel}
+              stocks={section.stocks}
+              emptyMessage={section.emptyMessage}
+            />
+          ))}
+        </MoverSlider>
       </section>
       <section className="section-shell grid gap-10 lg:grid-cols-[1.06fr_0.94fr] lg:items-center">
         <div className="space-y-8">
@@ -313,71 +348,9 @@ export default async function Home() {
           </div>
         ) : (
           <div className="mt-6 grid gap-5 xl:grid-cols-3">
-            {featuredNews.map((article) => {
-              const primaryTicker = article.relatedTickers[0];
-              const cardStyle = article.thumbnailUrl
-                ? {
-                    backgroundImage: [
-                      "linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0.72) 100%)",
-                      `url(${article.thumbnailUrl})`,
-                    ].join(", "),
-                  }
-                : {
-                    backgroundImage:
-                      "linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 24%, transparent) 0%, color-mix(in oklab, var(--color-secondary) 24%, transparent) 100%)",
-                  };
-              return (
-                <article
-                  key={article.id}
-                  className="group relative overflow-hidden rounded-4xl border border-base-300/70 bg-neutral text-neutral-content shadow-lg shadow-primary/5"
-                  style={cardStyle}
-                >
-                  <a
-                    href={article.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="absolute inset-0 z-10"
-                    aria-label={`Open article: ${article.title}`}
-                  />
-
-                  <div className="pointer-events-none relative z-20 flex min-h-88 flex-col justify-between bg-linear-to-t from-neutral/92 via-neutral/38 to-neutral/8 p-6">
-                    <div className="flex items-start justify-between gap-3 text-xs uppercase tracking-[0.22em] text-neutral-content/72">
-                      <span className="rounded-full bg-neutral/45 px-3 py-1.5 backdrop-blur-sm">
-                        {article.publisher}
-                      </span>
-                      {primaryTicker ? (
-                        <span className="rounded-full bg-neutral/45 px-3 py-1.5 backdrop-blur-sm">
-                          {primaryTicker}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <div className="space-y-4">
-                      {primaryTicker ? (
-                        <div className="flex justify-end">
-                          <Link
-                            href={`/stocks/${primaryTicker}`}
-                            className="pointer-events-auto btn btn-ghost btn-sm relative z-30 rounded-full border border-neutral-content/22 bg-neutral/38 px-5 text-neutral-content backdrop-blur-sm hover:border-neutral-content/36 hover:bg-neutral/50"
-                          >
-                            View {primaryTicker}
-                          </Link>
-                        </div>
-                      ) : null}
-
-                      <div className="max-w-xl rounded-3xl bg-neutral/68 p-5 backdrop-blur-sm">
-                        <h3 className="text-2xl font-semibold leading-8 text-neutral-content">
-                          {article.title}
-                        </h3>
-
-                        <p className="mt-3 text-sm text-neutral-content/72">
-                          Published {formatDateTime(article.publishedAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+            {featuredNews.map((article) => (
+              <NewsArticleCard key={article.id} article={article} />
+            ))}
           </div>
         )}
       </section>

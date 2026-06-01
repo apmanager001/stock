@@ -9,6 +9,7 @@ import {
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
+import { NewsArticleCard } from "@/components/stocks/news-article-card";
 import { PriceChart } from "@/components/stocks/price-chart";
 import {
   stockChartRanges,
@@ -345,7 +346,6 @@ export function StockDetailPanel({
                 symbol={stock.symbol}
                 currency={stock.currency ?? "USD"}
                 points={stock.chartPoints}
-                positive={(stock.changePercent ?? 0) >= 0}
               />
             </div>
           </div>
@@ -391,59 +391,9 @@ export function StockDetailPanel({
               </div>
             ) : (
               <div className="mt-6 space-y-4">
-                {stock.news.slice(0, 6).map((article) => {
-                  const primaryTicker = article.relatedTickers[0];
-                  const cardStyle = article.thumbnailUrl
-                    ? {
-                        backgroundImage: [
-                          "linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0.72) 100%)",
-                          `url(${article.thumbnailUrl})`,
-                        ].join(", "),
-                      }
-                    : {
-                        backgroundImage:
-                          "linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 24%, transparent) 0%, color-mix(in oklab, var(--color-secondary) 24%, transparent) 100%)",
-                      };
-
-                  return (
-                    <article
-                      key={article.id}
-                      className="group relative overflow-hidden rounded-4xl border border-base-300/70 bg-neutral text-neutral-content shadow-lg shadow-primary/5"
-                      style={cardStyle}
-                    >
-                      <a
-                        href={article.link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="absolute inset-0 z-10"
-                        aria-label={`Open article: ${article.title}`}
-                      />
-
-                      <div className="pointer-events-none relative z-20 flex min-h-24 flex-col justify-between bg-linear-to-t from-neutral/92 via-neutral/38 to-neutral/8 p-4 gap-4 sm:p-5">
-                        <div className="flex items-start justify-between gap-3 text-xs uppercase tracking-[0.22em] text-neutral-content/72">
-                          <span className="rounded-full bg-neutral/45 px-3 py-1.5 backdrop-blur-sm">
-                            {article.publisher}
-                          </span>
-                          {primaryTicker ? (
-                            <span className="rounded-full bg-neutral/45 px-3 py-1.5 backdrop-blur-sm">
-                              {primaryTicker}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        <div className="max-w-xl rounded-3xl bg-neutral/68 p-3.5 backdrop-blur-sm sm:p-4">
-                          <h3 className="text-base font-semibold leading-6 text-neutral-content sm:text-lg sm:leading-7">
-                            {article.title}
-                          </h3>
-
-                          <p className="mt-2 text-xs text-neutral-content/72 sm:text-sm">
-                            Published {formatDateTime(article.publishedAt)}
-                          </p>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
+                {stock.news.slice(0, 6).map((article) => (
+                  <NewsArticleCard key={article.id} article={article} compact />
+                ))}
               </div>
             )}
           </div>

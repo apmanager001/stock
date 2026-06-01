@@ -8,6 +8,7 @@ import {
   Menu,
   Orbit,
   Settings2,
+  Shield,
   Sparkles,
   UserRound,
   X,
@@ -25,11 +26,29 @@ function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
+function hasAdminAccess(user: unknown) {
+  if (!user || typeof user !== "object") {
+    return false;
+  }
+
+  const sessionUser = user as {
+    admin?: boolean | string | null;
+    role?: string | null;
+  };
+
+  return (
+    sessionUser.admin === true ||
+    sessionUser.admin === "true" ||
+    sessionUser.role === "admin"
+  );
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
   const isAuthenticated = Boolean(session?.user);
+  const isAdmin = hasAdminAccess(session?.user);
 
   return (
     <header className="sticky top-0 z-40">
@@ -121,6 +140,17 @@ export function SiteHeader() {
                         Paper Money
                       </Link>
                     </li>
+                    {isAdmin ? (
+                      <li className="hover:bg-primary/40 rounded-xl">
+                        <Link
+                          href="/admin"
+                          className="rounded-xl px-3 py-3 font-extrabold hover:text-white"
+                        >
+                          <Shield className="h-4 w-4 text-accent-content" />
+                          Admin
+                        </Link>
+                      </li>
+                    ) : null}
                     <li className="hover:bg-primary/40 rounded-xl">
                       <Link
                         href="/settings"
@@ -216,6 +246,15 @@ export function SiteHeader() {
                     >
                       Paper Money
                     </Link>
+                    {isAdmin ? (
+                      <Link
+                        href="/admin"
+                        className="rounded-2xl bg-base-100/80 px-4 py-3 text-sm font-medium text-base-content/72 transition-colors hover:bg-base-200"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Admin
+                      </Link>
+                    ) : null}
                     <Link
                       href="/settings"
                       className="rounded-2xl bg-base-100/80 px-4 py-3 text-sm font-medium text-base-content/72 transition-colors hover:bg-base-200"

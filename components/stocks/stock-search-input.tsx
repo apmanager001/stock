@@ -1,7 +1,7 @@
 "use client";
 
 import { LoaderCircle, Search } from "lucide-react";
-import { useDeferredValue, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { StockSearchResult } from "@/lib/stocks/models";
 
 type StockSearchInputProps = {
@@ -29,18 +29,29 @@ export function StockSearchInput({
   const [results, setResults] = useState<StockSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const deferredQuery = useDeferredValue(query.trim());
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const visibleQuery = selectedResult ? "" : query.trim();
 
   useEffect(() => {
-    if (!deferredQuery || selectedResult) {
+    const debounceTimer = setTimeout(() => {
+      setDebouncedQuery(visibleQuery);
+    }, 250);
+
+    return () => {
+      clearTimeout(debounceTimer);
+    };
+  }, [visibleQuery]);
+
+  useEffect(() => {
+    if (!debouncedQuery || selectedResult) {
       return;
     }
 
     const controller = new AbortController();
     let isCurrent = true;
 
-    fetch(`/api/stocks/search?q=${encodeURIComponent(deferredQuery)}`, {
+    fetch(`/api/stocks/search?q=${encodeURIComponent(debouncedQuery)}`, {
       signal: controller.signal,
     })
       .then(async (response) => {
@@ -74,7 +85,15 @@ export function StockSearchInput({
       isCurrent = false;
       controller.abort();
     };
-  }, [deferredQuery, selectedResult]);
+  }, [debouncedQuery, selectedResult]);
+
+  useEffect(() => {
+    return () => {
+      if (blurTimer.current) {
+        clearTimeout(blurTimer.current);
+      }
+    };
+  }, []);
 
   function handleSelect(result: StockSearchResult) {
     setSelectedResult(result);
@@ -145,7 +164,7 @@ export function StockSearchInput({
         ) : null}
       </div>
 
-      {isOpen && (isLoading || deferredQuery || results.length > 0) ? (
+      {isOpen && (isLoading || visibleQuery || results.length > 0) ? (
         <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-3xl border border-base-300/70 bg-base-100/96 shadow-2xl shadow-primary/10 backdrop-blur">
           {results.length > 0 ? (
             <div className="divide-y divide-base-300/60">
@@ -176,7 +195,7 @@ export function StockSearchInput({
                 </button>
               ))}
             </div>
-          ) : deferredQuery && !isLoading ? (
+          ) : visibleQuery && debouncedQuery === visibleQuery && !isLoading ? (
             <div className="px-4 py-4 text-sm text-base-content/58">
               No matches found. You can still save a symbol directly.
             </div>

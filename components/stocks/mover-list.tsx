@@ -8,6 +8,7 @@ type MoverListProps = {
   title: string;
   icon: React.ReactNode;
   iconClassName: string;
+  itemLabel?: string;
   stocks: StockMover[];
   emptyMessage: string;
 };
@@ -17,9 +18,13 @@ export function MoverList({
   title,
   icon,
   iconClassName,
+  itemLabel,
   stocks,
   emptyMessage,
 }: MoverListProps) {
+  const resolvedItemLabel =
+    itemLabel ?? (title === "Top gainers" ? "Up" : "Down");
+
   return (
     <div className="min-w-0 space-y-5">
       <div className="flex items-center gap-3">
@@ -65,9 +70,6 @@ export function MoverList({
                       <p className="truncate text-base font-semibold text-base-content sm:text-lg">
                         {stock.symbol}
                       </p>
-                      <span className="rounded-full border border-base-300/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-base-content/48">
-                        {title === "Top gainers" ? "Up" : "Down"}
-                      </span>
                     </div>
                     <p className="mt-1 truncate text-sm text-base-content/58">
                       {stock.name}
